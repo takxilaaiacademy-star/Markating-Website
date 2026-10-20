@@ -73,6 +73,7 @@ export const titleCase = (s: string) => s.toLowerCase().replace(/(^|\s|·\s)\S/g
 export const NAV_LINKS: [label: string, to: string][] = [
   ['Home', '/'],
   ['Courses', '/courses'],
+  ['AI Calculator', '/calculator'],
   ['AI Course Finder', '/ai-course-finder'],
   ['About', '/about'],
   ['Contact', '/contact'],
@@ -147,7 +148,8 @@ export const SOCIAL = SOCIAL_LINKS.map(([label, url]) => [label, url, SOCIAL_ICO
 export type FooterCol = [head: string, links: [label: string, to: string][]];
 export const FOOTER_COLS: FooterCol[] = [
   ['Explore', [['All courses', '/courses'], ['AI Challenges', '/courses?cat=challenge'], ['AI Agents', '/courses?cat=agents'], ['AI Career Accelerator', '/courses?cat=career'], ['AI Filmmaking', '/courses?cat=film']]],
-  ['Company', [['Home', '/'], ['AI Course Finder', '/ai-course-finder'], ['About us', '/about'], ['Contact us', '/contact']]],
+  ['Company', [['Home', '/'], ['AI Calculator', '/calculator'],
+  ['AI Course Finder', '/ai-course-finder'], ['About us', '/about'], ['Contact us', '/contact']]],
   ['Legal', [['Privacy policy', '/policies#privacy'], ['Terms of use', '/policies#terms'], ['Refund policy', '/policies#refund']]],
 ];
 

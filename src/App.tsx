@@ -1,5 +1,5 @@
 import { lazy } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 
@@ -19,7 +19,7 @@ export default function App() {
         <Route path="courses" element={<Courses />} />
         <Route path="course/:id" element={<Course />} />
         <Route path="ai-course-finder" element={<Quiz />} />
-        <Route path="calculator" element={<Navigate to="/ai-course-finder" replace />} />
+        <Route path="calculator" element={<Quiz />} />
         <Route path="about" element={<About />} />
         <Route path="contact" element={<Contact />} />
         <Route path="policies" element={<Policies />} />

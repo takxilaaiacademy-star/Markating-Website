@@ -1,15 +1,15 @@
 import type { Offer, Testimonial, Utm } from "./types";
 
 /** The real academy: every Enroll, Buy, Register and Log in button opens a page there. */
-export const MAIN_SITE_URL = (import.meta.env.VITE_MAIN_SITE_URL || "https://takxila.in").replace(/\/$/, "");
+export const MAIN_SITE_URL = (import.meta.env.VITE_MAIN_SITE_URL || "https://academy.takxila.in").replace(/\/$/, "");
 
 /** Where this marketing site is hosted: used for canonical links, Open Graph tags and sitemap.xml. */
 export const SITE_URL = (import.meta.env.VITE_SITE_URL || "https://takxila.in").replace(/\/$/, "");
 
 /** Paths on the main site. */
 export const MAIN_PATHS = {
-  register: "/register",
-  login: "/login",
+  register: "/login/signup.php",
+  login: "/login/index.php",
   courses: "/courses",
   course: (id: string) => "/course/" + id,
 };
@@ -24,7 +24,7 @@ export const OFFER: Offer = {
   show: true,
   text: "Limited-time prices: 20% off every AI course, and the starter courses are free.",
   cta: "Claim the offer",
-  href: "/register",
+  href: "/login/signup.php",
   endsOn: "",
 };
 
