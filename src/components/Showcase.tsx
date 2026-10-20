@@ -322,8 +322,8 @@ export function Perks() {
   );
 }
 
-export function CourseFaq() {
-  return COURSE_FAQ.map(([q, a], i) => (
+export function CourseFaq({ skip = [] }: { skip?: string[] }) {
+  return COURSE_FAQ.filter(([q]) => !skip.includes(q)).map(([q, a], i) => (
     <Accordion key={q} defaultExpanded={i === 0} disableGutters sx={S.faq}>
       <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={S.faqSummary}>
         <Typography sx={S.faqQ}>{q}</Typography>

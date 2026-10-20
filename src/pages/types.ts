@@ -52,9 +52,7 @@ export const heroStats = (): [number, string, string, string][] => [
 
 export const proofStats = (): [number, string, string, string][] => [
   [LEARNERS, '', '+', 'Learners started with our quiz'],
-  [COURSES.length, '', '', 'Practical AI courses'],
   [COURSES.filter((c) => c.price === 0).length, '', '', 'Free starter courses'],
-  [totalHours(), '', '+', 'Hours of practical learning'],
 ];
 
 export const BENTO: { icon: IconType; title: string; text: string; span: number; color: string }[] = [

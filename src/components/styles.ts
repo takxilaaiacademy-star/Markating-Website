@@ -29,9 +29,9 @@ const orb = (color: string) => ({
 }) as const;
 
 export const backgroundStyles = {
-  orb1: s((t) => ({ ...orb(t.tx.orb1), width: 720, height: 720, left: -240, top: -40, animation: 'txdrift 18s ease-in-out infinite' })),
-  orb2: s((t) => ({ ...orb(t.tx.orb2), width: 820, height: 820, right: -260, top: 280, animation: 'txdrift 24s ease-in-out -8s infinite reverse' })),
-  orb3: s((t) => ({ ...orb(t.tx.orb3), width: 680, height: 680, left: '28%', bottom: -300, animation: 'txdrift 30s ease-in-out -14s infinite' })),
+  orb1: s((t) => ({ ...orb(t.tx.orb1), width: 720, height: 720, left: -240, top: -40, animation: { xs: 'none', md: 'txdrift 18s ease-in-out infinite' } })),
+  orb2: s((t) => ({ ...orb(t.tx.orb2), width: 820, height: 820, right: -260, top: 280, animation: { xs: 'none', md: 'txdrift 24s ease-in-out -8s infinite reverse' } })),
+  orb3: s((t) => ({ ...orb(t.tx.orb3), width: 680, height: 680, left: '28%', bottom: -300, animation: { xs: 'none', md: 'txdrift 30s ease-in-out -14s infinite' } })),
 };
 
 const cardGrid = { display: 'grid', gap: 3, gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' } } as const;

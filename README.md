@@ -63,3 +63,20 @@ src/pages/       Home, Courses, Course, Quiz, About/Contact/Policies/404
 src/utils/       links + UTM, leads, SEO, analytics
 tools/           sitemap/robots generator, Apps Script mailer
 ```
+
+## Notes
+
+- The course page has three views (banner cards, grouped categories, numbered tiles) with search, filters, sorting and pagination.
+- Login / Register / Enroll buttons open the academy's own pages. Confirm the exact registration path on the live academy before publishing. Nothing here processes payment or logs anyone in.
+- Course information and prices are a snapshot. Check links and data before deploying.
+- `/calculator` redirects to `/ai-course-finder` (one page, one menu item).
+
+## Speed and safety
+
+- Fonts load without blocking the first paint, and off-screen home sections are skipped until you scroll to them (`content-visibility`).
+- The heavy course-content file loads only when a course page opens; the Courses and Course pages are fetched while the browser is idle.
+- Background glow animation is off on phones, and respects "reduce motion".
+- Vendor code is split into `react` and `mui` chunks, cached for a year; images and videos are cached for 30 days.
+- A friendly "Reload page" screen replaces a blank page if a page file fails to load, and there is a "Skip to main content" link.
+- Security headers are set in `vercel.json` and `public/.htaccess`.
+

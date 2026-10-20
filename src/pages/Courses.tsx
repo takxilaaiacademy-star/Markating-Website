@@ -24,7 +24,6 @@ function rememberedView(): View {
 }
 
 function GroupedCourses({ courses }: { courses: Course[] }) {
-  const nav = useNavigate();
   const [expanded, setExpanded] = useState<string[]>([]);
   const allOpen = GROUP_PILLS.every(([id]) => expanded.includes(id));
   const toggleAll = () => setExpanded(allOpen ? [] : GROUP_PILLS.map(([id]) => id));

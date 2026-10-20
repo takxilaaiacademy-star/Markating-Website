@@ -103,7 +103,7 @@ export const landingStyles = {
   closingText: { mb: 4, fontSize: { xs: 15, md: 16 }, position: 'relative' },
   page: { position: 'relative', overflow: 'hidden' },
   proof: (t: Theme): Css => ({
-    display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, minmax(0, 1fr))' }, gap: { xs: 2, md: 3 }, mt: { xs: 4, md: 6 },
+    display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', maxWidth: 640, mx: 'auto', gap: { xs: 2, md: 3 }, mt: { xs: 4, md: 6 },
     p: { xs: 2.5, md: 3.5 }, borderRadius: '22px', border: `1px solid ${t.tx.line}`, background: t.tx.surface, backdropFilter: 'blur(16px)',
   }),
   proofCell: { textAlign: 'center', minWidth: 0 },

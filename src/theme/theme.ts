@@ -118,6 +118,7 @@ export function createAppTheme(mode: PaletteMode) {
           },
           "::-webkit-scrollbar-corner": { background: "transparent" },
           "::selection": { background: t.glow },
+          ".tx-defer": { contentVisibility: "auto", containIntrinsicSize: "auto 720px" },
           "@media (prefers-reduced-motion: reduce)": {
             "*": {
               animation: "none !important",

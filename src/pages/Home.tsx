@@ -25,7 +25,7 @@ import { landingStyles as S } from './styles';
 
 function Section({ id, kick, title, hl, sub, children }: { id?: string; kick: string; title: string; hl: string; sub?: string; children: ReactNode }) {
   return (
-    <Box id={id} component="section" sx={S.section}>
+    <Box id={id} component="section" className="tx-defer" sx={S.section}>
       <Container maxWidth="lg">
         <Box sx={S.sectionHead}>
           <Chip label={kick} size="small" variant="outlined" sx={S.kick} />
@@ -236,9 +236,9 @@ function Challenge() {
         </Grid>
         <Grid item xs={12} md={6}>
           <Typography variant="h4" sx={S.subTitle}>
-            Questions, <GradientText>answered</GradientText>
+            About the <GradientText>challenge</GradientText>
           </Typography>
-          <CourseFaq />
+          <CourseFaq skip={['Do I get a certificate?']} />
         </Grid>
       </Grid>
     </Stack>

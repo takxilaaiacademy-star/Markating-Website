@@ -7,11 +7,12 @@ import LightModeIcon from '@mui/icons-material/LightModeOutlined';
 import TranslateIcon from '@mui/icons-material/Translate';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import LocalOfferIcon from '@mui/icons-material/LocalOfferOutlined';
-import { Link as RouterLink, Outlet } from 'react-router-dom';
+import { Link as RouterLink, Outlet, useLocation } from 'react-router-dom';
 import { whatsappLink } from '../config/site';
 import { LANGS } from '../data/languages';
 import { loginUrl } from '../utils/links';
 import Background from './Background';
+import ErrorBoundary from './ErrorBoundary';
 import Footer from './Footer';
 import Logo from './Logo';
 import { PreviewProvider } from './Preview';
@@ -112,15 +113,25 @@ function StickyCta() {
   );
 }
 
+const skipLink = {
+  position: 'fixed', top: 8, left: 8, zIndex: 2000, px: 2, py: 1, borderRadius: '10px', bgcolor: 'primary.main', color: 'primary.contrastText', fontWeight: 700,
+  transform: 'translateY(-200%)', '&:focus': { transform: 'none' },
+} as const;
+
 export default function Layout() {
   useLayoutEffects();
+  const { pathname } = useLocation();
   return (
     <PreviewProvider>
       <Box sx={S.shell}>
+        <Box component="a" href="#main" sx={skipLink}>
+          Skip to main content
+        </Box>
         <Background />
         <OfferBar />
         <Header />
-        <Box component="main" sx={S.main}>
+        <Box component="main" id="main" tabIndex={-1} sx={S.main}>
+          <ErrorBoundary resetKey={pathname}>
           <Suspense
             fallback={
               <Box sx={S.loader} role="status" aria-label="Loading">
@@ -130,6 +141,7 @@ export default function Layout() {
           >
             <Outlet />
           </Suspense>
+          </ErrorBoundary>
         </Box>
         <Footer />
         <IconButton
