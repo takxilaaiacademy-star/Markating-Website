@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
+import { HeadContext } from '../context/types';
 import { SITE_URL } from '../config/marketing';
 import { SITE } from '../config/site';
 import type { Course } from '../types';
@@ -27,13 +28,18 @@ function setCanonical(href: string) {
   el.href = href;
 }
 
-const abs = (path: string) => (/^https?:/.test(path) ? path : SITE_URL + path);
+export const abs = (path: string) => (/^https?:/.test(path) ? path : SITE_URL + path);
 
 /** Title, description, canonical, Open Graph, Twitter and JSON-LD for the page that is open. */
-export function usePageMeta({ title, description, path, image = DEFAULT_IMAGE, type = 'website', jsonLd = [] }: PageMeta) {
+export const fullTitle = (title: string) => (title.includes(SITE.name) ? title : `${title} | ${SITE.name}`);
+
+export function usePageMeta(meta: PageMeta) {
+  const { title, description, path, image = DEFAULT_IMAGE, type = 'website', jsonLd = [] } = meta;
+  const head = useContext(HeadContext);
+  if (head) head.meta = { ...meta, image, type, jsonLd };
   const ld = JSON.stringify(jsonLd);
   useEffect(() => {
-    const full = title.includes(SITE.name) ? title : `${title} | ${SITE.name}`;
+    const full = fullTitle(title);
     document.title = full;
     setMeta('name', 'description', description);
     setCanonical(abs(path));

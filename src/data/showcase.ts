@@ -1,6 +1,4 @@
 import type { Course } from "../types";
-import { COURSES } from "./courses";
-import { courseById } from "./recommend";
 
 // Course length
 
@@ -25,125 +23,6 @@ export function durationText(c: Course): string {
 }
 
 
-// Combo packs and plans
-
-export type PackGroup = "build" | "create" | "market" | "career";
-export const PACK_GROUPS: [PackGroup | "all", string][] = [
-  ["all", "All"],
-  ["build", "Agents & Building"],
-  ["create", "Creative & Film"],
-  ["market", "Marketing & Business"],
-  ["career", "Career & Productivity"],
-];
-
-export interface Pack {
-  id: string;
-  title: string;
-  group: PackGroup;
-  courses: string[];
-  price: number;
-  rating: number;
-}
-
-/** Pack price: 30% off the courses' own prices, ending in 9 (so it always beats the 25% customized pack). */
-const packPrice = (ids: string[]) =>
-  Math.round(
-    (ids.reduce((a, id) => a + (courseById(id)?.price ?? 0), 0) * 0.7) / 10,
-  ) *
-    10 -
-  1;
-
-export const PACKS: Pack[] = (
-  [
-    {
-      id: "agent-builder",
-      title: "AI Agent Builder",
-      group: "build",
-      courses: ["agentic", "wa-mastery", "claude-code", "job-agent"],
-      rating: 4.9,
-    },
-    {
-      id: "claude-pro",
-      title: "Claude Pro",
-      group: "build",
-      courses: ["claude-master", "claude-code", "claude-deep", "claude-excel"],
-      rating: 4.8,
-    },
-    {
-      id: "nocode-founder",
-      title: "No-Code Founder",
-      group: "build",
-      courses: ["lovable", "nocode-web", "wa-mastery", "ai-pm"],
-      rating: 4.7,
-    },
-    {
-      id: "content-creator",
-      title: "AI Content Creator",
-      group: "create",
-      courses: ["omni-master", "mj-advanced", "kling-master", "canva-ai"],
-      rating: 4.8,
-    },
-    {
-      id: "filmmaker",
-      title: "AI Filmmaker",
-      group: "create",
-      courses: [
-        "film-1",
-        "film-2",
-        "film-3",
-        "film-4",
-        "film-5",
-        "film-6",
-        "film-7",
-        "film-8",
-        "film-9",
-      ],
-      rating: 4.9,
-    },
-    {
-      id: "marketer",
-      title: "AI Marketer",
-      group: "market",
-      courses: ["ai-marketing", "meta-ads", "gads-mastery", "ai-seo"],
-      rating: 4.7,
-    },
-    {
-      id: "business",
-      title: "AI for Business",
-      group: "market",
-      courses: ["ai-finance", "ai-pm", "ai-projects", "claude-excel"],
-      rating: 4.6,
-    },
-    {
-      id: "power-user",
-      title: "AI Power User",
-      group: "career",
-      courses: [
-        "chatgpt-deep",
-        "gemini",
-        "perplexity",
-        "deepseek",
-        "genai-complete",
-      ],
-      rating: 4.8,
-    },
-    {
-      id: "career-starter",
-      title: "Career Starter",
-      group: "career",
-      courses: ["portfolio", "job-agent", "ready", "chatgpt-deep"],
-      rating: 4.7,
-    },
-  ] as Omit<Pack, "price">[]
-).map((p) => ({ ...p, price: packPrice(p.courses) }));
-
-export const PAID = COURSES.filter((c) => c.price > 0);
-export const listPrice = (ids: string[]) =>
-  ids.reduce((a, id) => a + (courseById(id)?.price ?? 0), 0);
-export const packList = (p: Pack) => listPrice(p.courses);
-
-export const ALL_ACCESS_PRICE = 4999;
-
 // Comparison table
 
 export const COMPARE_COLS = ["Takxila", "YouTube", "Other platforms"] as const;
@@ -163,7 +42,6 @@ export const COMPARE_ROWS: [
   ["Course summary video before you buy", true, true, false],
   ["Hindi menus and regional-language challenges", true, false, false],
 ];
-export const COMPARE_SAVE = 50000 - 499;
 
 // Challenges
 

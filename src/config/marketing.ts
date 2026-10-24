@@ -10,9 +10,27 @@ export const SITE_URL = (import.meta.env.VITE_SITE_URL || "https://takxila.in").
 export const MAIN_PATHS = {
   register: "/login/signup.php",
   login: "/login/index.php",
-  courses: "/courses",
+  courses: "/course/index.php",
+  myCourses: "/my/courses.php",
+  helpdesk: "/local/helpdesk/",
   course: (id: string) => "/course/" + id,
 };
+
+/** Course categories on the academy, by this site's track id. */
+export const MAIN_CATEGORIES: Partial<Record<"challenge" | "agents" | "toolkit" | "career" | "film", string>> = {
+  challenge: "/course/index.php?categoryid=2",
+  career: "/course/index.php?categoryid=3",
+  toolkit: "/course/index.php?categoryid=4",
+  film: "/course/index.php?categoryid=5",
+};
+
+/** The academy's own policy pages: the legal text lives there only. */
+export const POLICY_LINKS: [label: string, path: string][] = [
+  ["Privacy Policy", "/local/staticpage/view.php?page=privacy-policy"],
+  ["Terms & Conditions", "/local/staticpage/view.php?page=terms-and-conditions"],
+  ["Refund Policy", "/local/staticpage/view.php?page=refund-policy"],
+  ["Subscription & Purchase Terms", "/local/staticpage/view.php?page=subscription-purchase-terms"],
+];
 
 /** true: a course button opens that course on the academy LMS when it has a link there; false: always MAIN_SITE_URL/course/<id>. */
 export const USE_ACADEMY_LINKS = true;
@@ -29,11 +47,11 @@ export const OFFER: Offer = {
 };
 
 export const SOCIAL_LINKS: [label: "Facebook" | "Instagram" | "YouTube" | "LinkedIn" | "X", url: string][] = [
-  ["Facebook", "https://www.facebook.com/"],
-  ["Instagram", "https://www.instagram.com/"],
-  ["YouTube", "https://www.youtube.com/"],
-  ["LinkedIn", "https://www.linkedin.com/"],
-  ["X", "https://x.com/"],
+  ["Facebook", "https://www.facebook.com/profile.php?id=61593353891460"],
+  ["Instagram", "https://www.instagram.com/takxilaaiacademy/"],
+  ["YouTube", "https://www.youtube.com/@TakxilaAcademy"],
+  ["LinkedIn", "https://www.linkedin.com/in/takxila-academy-2b680642b/"],
+  ["X", "https://x.com/TakxilaAcademy"],
 ];
 
 /** Learners who started with the AI course finder, shown in the social proof row. */

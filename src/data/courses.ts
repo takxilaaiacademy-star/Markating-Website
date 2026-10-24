@@ -845,6 +845,35 @@ const DATA: CourseData[] = [
     tags: ["career", "jobs", "beginner", "content"],
   },
   {
+    id: "ats-resume",
+    cat: "career",
+    group: "career",
+    kicker: "Free Resume Tool",
+    title: "FREE ATS-FRIENDLY RESUME BUILDER",
+    shortName: "FREE ATS RESUME BUILDER",
+    short: "Build a resume that gets past ATS filters, tailored to the job you want.",
+    desc: "A free tool that tailors your resume to a job description: keyword matching, standard ATS section headings, achievement-focused bullet points and a clean single-column layout. Download it as .docx or PDF.",
+    meta: [
+      "Free Tool",
+      "Job-Description Keyword Matching",
+      "Standard ATS Section Headings",
+      "Achievement-Focused Bullet Points",
+      "Clean Single-Column Layout",
+      "Download as .docx or PDF",
+    ],
+    learn: [
+      "Tailor a resume to any job description",
+      "Match the keywords recruiters search for",
+      "Write achievement-focused bullet points",
+      "Export a clean .docx or PDF",
+    ],
+    price: 0,
+    was: null,
+    img: "/assets/covers/ats-resume.webp",
+    featured: false,
+    tags: ["career", "jobs", "beginner", "quick"],
+  },
+  {
     id: "job-agent",
     cat: "career",
     group: "career",
@@ -1346,9 +1375,9 @@ const DATA: CourseData[] = [
 export const COURSE_REFS: Record<string, { code: string; days: number; mrp: number; academyUrl: string }> = {
   "claude-7": { code: "TX-AICh-01", days: 0, mrp: 0, academyUrl: "https://academy.takxila.in/course/view.php?id=9" },
   "mastery-14": { code: "TX-AICh-02", days: 14, mrp: 399, academyUrl: "https://academy.takxila.in/course/view.php?id=20" },
-  "mastery-28": { code: "TX-AICh-03", days: 28, mrp: 499, academyUrl: "https://academy.takxila.in/course/view.php?id=21" },
+  "mastery-28": { code: "TX-AICh-03", days: 28, mrp: 499, academyUrl: "https://academy.takxila.in/course/view.php?id=10" },
   junior: { code: "TX-AICh-05", days: 28, mrp: 399, academyUrl: "https://academy.takxila.in/course/view.php?id=38" },
-  ready: { code: "TX-AICh-04", days: 28, mrp: 499, academyUrl: "https://academy.takxila.in/course/view.php?id=10" },
+  ready: { code: "TX-AICh-04", days: 28, mrp: 499, academyUrl: "https://academy.takxila.in/course/view.php?id=21" },
   "n8n-agents": { code: "TX-AIAg-04", days: 30, mrp: 499, academyUrl: "https://academy.takxila.in/course/view.php?id=57" },
   "wa-agent": { code: "TX-AAI-01", days: 0, mrp: 0, academyUrl: "https://academy.takxila.in/course/view.php?id=42" },
   agentic: { code: "TX-AIAg-03", days: 30, mrp: 499, academyUrl: "https://academy.takxila.in/course/view.php?id=54" },
@@ -1371,6 +1400,7 @@ export const COURSE_REFS: Record<string, { code: string; days: number; mrp: numb
   "canva-ai": { code: "TX-AIToolMst-11", days: 20, mrp: 299, academyUrl: "https://academy.takxila.in/course/view.php?id=34" },
   gemini: { code: "TX-AIToolMst-07", days: 20, mrp: 299, academyUrl: "https://academy.takxila.in/course/view.php?id=30" },
   portfolio: { code: "TX-WORK-02.1", days: 7, mrp: 0, academyUrl: "https://academy.takxila.in/course/view.php?id=3" },
+  "ats-resume": { code: "TX-WORK-02.0", days: 0, mrp: 0, academyUrl: "https://academy.takxila.in/course/view.php?id=58" },
   "job-agent": { code: "TX-WORK-02.2", days: 14, mrp: 0, academyUrl: "https://academy.takxila.in/course/view.php?id=7" },
   "meta-ads": { code: "TX-WORK-02.12", days: 18, mrp: 349, academyUrl: "https://academy.takxila.in/course/view.php?id=53" },
   "ai-marketing": { code: "TX-WORK-02.11", days: 15, mrp: 249, academyUrl: "https://academy.takxila.in/course/view.php?id=49" },
@@ -1397,10 +1427,13 @@ const BASE_DATA: CourseData[] = DATA.map((c) => {
   return ref ? { ...c, idNumber: ref.code, days: ref.days, academyUrl: ref.academyUrl } : c;
 });
 
+/** Courses without a summary video in public/media/videos yet. */
+const NO_VIDEO = new Set(["ats-resume"]);
+
 const buildCourse = (c: CourseData): Course => ({
   ...c,
   catLabel: GROUPS[c.group],
-  video: "/media/videos/" + c.id + ".mp4",
+  video: NO_VIDEO.has(c.id) ? "" : "/media/videos/" + c.id + ".mp4",
   search: [
     c.title,
     c.kicker,

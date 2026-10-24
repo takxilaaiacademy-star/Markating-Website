@@ -1,79 +1,115 @@
-import { useState } from 'react';
-import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Chip, InputAdornment, MenuItem, Pagination, Stack, TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import ViewModuleIcon from '@mui/icons-material/ViewModuleOutlined';
-import AppsIcon from '@mui/icons-material/Apps';
-import ViewAgendaIcon from '@mui/icons-material/ViewAgendaOutlined';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForwardRounded';
-import { Link as RouterLink, useNavigate, useSearchParams } from 'react-router-dom';
-import { CourseGrid } from '../components/CourseCard';
-import { NumberedGrid } from '../components/Showcase';
-import { Heading, Page } from '../components/Section';
-import { GROUP_PILLS, GROUPS } from '../data/courses';
-import type { Course } from '../types';
+import { Link } from 'react-router-dom';
+import CourseCard from '../components/CourseCard';
+import Icon from '../components/Icon';
+import { PageHero } from '../components/Section';
+import { fmt } from '../components/types';
+import { MAIN_CATEGORIES } from '../config/marketing';
+import { COURSES } from '../data/courses';
+import { FREE_COURSES, LOWEST_PRICE, TRACKS, coursesIn } from '../data/tracks';
+import { mainUrl } from '../utils/links';
 import { courseListLd, usePageMeta } from '../utils/seo';
-import { SORTS, useCourses, type SortKey } from './types';
-import { coursesStyles as S } from './styles';
-
-type View = 'cards' | 'groups' | 'list';
-const VALID_VIEWS: View[] = ['cards', 'groups', 'list'];
-function rememberedView(): View {
-  try { const v = localStorage.getItem('tx_course_view'); return VALID_VIEWS.includes(v as View) ? v as View : 'cards'; }
-  catch { return 'cards'; }
-}
-
-function GroupedCourses({ courses }: { courses: Course[] }) {
-  const [expanded, setExpanded] = useState<string[]>([]);
-  const allOpen = GROUP_PILLS.every(([id]) => expanded.includes(id));
-  const toggleAll = () => setExpanded(allOpen ? [] : GROUP_PILLS.map(([id]) => id));
-  return <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 3, p: {xs:1,sm:1.5}, bgcolor: 'background.paper', boxShadow: '0 18px 55px rgba(0,0,0,.12)' }}>
-    <Stack direction="row" justifyContent="flex-end" sx={{ mb:1 }}><Button size="small" variant="outlined" onClick={toggleAll}>{allOpen ? 'Collapse all' : 'Expand all'}</Button></Stack>
-    {GROUP_PILLS.map(([id], label) => {
-      const items = courses.filter(c => c.group === id);
-      if (!items.length) return null;
-      return <Accordion key={id} expanded={expanded.includes(id)} onChange={(_, open) => setExpanded(prev => open ? [...prev,id] : prev.filter(x=>x!==id))} disableGutters sx={{ mb:1, border: '1px solid rgba(255,255,255,.12)', borderRadius:'12px !important', overflow:'hidden', background: 'linear-gradient(115deg,#17135d,#262180)', '&:before':{display:'none'}, '&.Mui-expanded':{my:1} }}>
-        <AccordionSummary expandIcon={<ExpandMoreIcon sx={{color:'#fff'}} />} sx={{ minHeight:70, px:{xs:1.5,sm:2.5}, '& .MuiAccordionSummary-content':{my:1.4} }}>
-          <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{width:'100%',pr:1}} gap={1}>
-            <Box><Typography sx={{fontWeight:850,color:'#fff',fontSize:{xs:13,sm:16}}}>{GROUPS[id] || label}</Typography><Typography sx={{fontSize:12,color:'#d7d4fb'}}>{items.length} courses · {items.some(c=>!c.price) ? 'free · ' : ''}from {items.every(c=>!c.price) ? 'FREE' : `₹${Math.min(...items.filter(c=>c.price).map(c=>c.price))}`}</Typography></Box>
-            <Stack direction="row" sx={{minWidth:92,justifyContent:'flex-end',flexShrink:0}}>{items.slice(0,3).map((c,i)=><Box key={c.id} component="img" alt="" src={c.img} sx={{width:37,height:42,objectFit:'cover',borderRadius:1,ml:i?'-13px':0,border:'2px solid #262180'}} />)}{items.length>3&&<Box sx={{ml:'-10px',bgcolor:'#565478',color:'#fff',width:38,height:42,borderRadius:1,display:'grid',placeItems:'center',fontSize:11}}>+{items.length-3}</Box>}</Stack>
-          </Stack>
-        </AccordionSummary>
-        <AccordionDetails sx={{background:'background.paper',p:{xs:1,sm:2}}}>
-          <Box sx={{display:'grid',gap:1.25,gridTemplateColumns:{xs:'1fr',md:'repeat(2,minmax(0,1fr))'}}}>{items.map(c=><Box key={c.id} sx={{display:'flex',alignItems:'center',gap:1.5,p:1,border:'1px solid',borderColor:'divider',borderRadius:2,'&:hover':{borderColor:'primary.main'}}}><Box component="img" alt="" src={c.img} sx={{width:100,aspectRatio:'16 / 9',objectFit:'cover',borderRadius:1}}/><Box sx={{minWidth:0,flex:1}}><Typography fontWeight={750} sx={{fontSize:13,lineHeight:1.3}}>{c.title}</Typography><Typography color="text.secondary" sx={{fontSize:12}}>{c.price?`₹${c.price}`:'FREE'}</Typography></Box><Button size="small" component={RouterLink} to={'/course/'+c.id} aria-label={'Details for '+c.title} endIcon={<ArrowForwardIcon fontSize="small"/>}>Details</Button></Box>)}</Box>
-        </AccordionDetails>
-      </Accordion>;
-    })}
-  </Box>;
-}
+import { SORTS, useCourseFilters, type SortKey } from './types';
 
 export default function Courses() {
-  const c = useCourses();
-  const [params, setParams] = useSearchParams();
-  const navigate = useNavigate();
-  const viewInUrl = params.get('view');
-  const [savedView, setSavedView] = useState<View>(rememberedView);
-  const view:View = VALID_VIEWS.includes(viewInUrl as View) ? viewInUrl as View : savedView;
-  const pickView = (next:View|null) => { if (!next) return; setSavedView(next); try{localStorage.setItem('tx_course_view',next)}catch{}; const p=new URLSearchParams(params);p.set('view',next);p.delete('page');setParams(p,{replace:true}); };
-  usePageMeta({title:'All AI courses', description:`Browse ${c.counts.all} practical AI courses in banner cards, category groups or compact tiles. Explore curriculum before enrolling.`,path:'/courses',jsonLd:[courseListLd(c.list)]});
-  const groups = view==='groups';
-  return <Page>
-    <Heading kick="COURSE CATALOG" title="Find your next" hl="AI skill" sub="Explore all courses, choose your preferred view, and see the full curriculum before enrolling." h1 />
-    <Stack direction="row" gap={1} flexWrap="wrap" sx={S.pills} role="group" aria-label="Course category">
-      {c.pills.map(([id,label],i)=><Chip key={id} label={`${label} (${c.counts[id]||0})`} clickable onClick={()=>c.pickCat(id)} color={c.cat===id?'primary':'default'} variant={c.cat===id?'filled':'outlined'} sx={S.pill(i)}/>)}
-    </Stack>
-    <Stack direction={{xs:'column',md:'row'}} spacing={1.5} sx={{...S.bar,gap:0.5}} alignItems={{md:'center'}}>
-      <TextField size="small" placeholder="Search courses, tools or skills" value={c.q} onChange={e=>c.setQ(e.target.value)} sx={{...S.search,flex:{md:'1 1 380px'},maxWidth:{xs:'100%',md:460}}} inputProps={{'aria-label':'Search courses','data-testid':'course-search'}} InputProps={{startAdornment:<InputAdornment position="start"><SearchIcon/></InputAdornment>}}/>
-      <TextField select size="small" value={c.sort} onChange={e=>c.pickSort(e.target.value)} sx={S.sort} inputProps={{'aria-label':'Sort courses'}}>{(Object.keys(SORTS) as SortKey[]).map(k=><MenuItem key={k} value={k}>{SORTS[k]}</MenuItem>)}</TextField>
-      <ToggleButtonGroup size="small" exclusive value={view} onChange={(_,v)=>pickView(v)} aria-label="Course layout">
-        <ToggleButton value="cards" aria-label="Banner cards" data-testid="view-cards"><Tooltip title="Banner cards"><ViewModuleIcon fontSize="small"/></Tooltip></ToggleButton>
-        <ToggleButton value="groups" aria-label="By category" data-testid="view-groups"><Tooltip title="Grouped categories"><ViewAgendaIcon fontSize="small"/></Tooltip></ToggleButton>
-        <ToggleButton value="list" aria-label="Compact tiles" data-testid="view-list"><Tooltip title="Compact tiles"><AppsIcon fontSize="small"/></Tooltip></ToggleButton>
-      </ToggleButtonGroup>
-      <Typography color="text.secondary" sx={{...S.count,whiteSpace:'nowrap'}} data-testid="course-count">{groups?`${c.list.length} courses`:c.countText}</Typography>
-    </Stack>
-    <Box key={c.cat+c.sort+c.cur+view} sx={S.grid(c.stale)}>{groups?<GroupedCourses courses={c.list}/>:view==='list'?<NumberedGrid courses={c.shown} start={(c.cur-1)*12+1} action={course=>navigate('/course/'+course.id)}/>:<CourseGrid courses={c.shown}/>}</Box>
-    {!c.list.length&&<Box sx={S.empty}><Typography variant="h6">No courses match “{c.q}”.</Typography><Button onClick={c.clear}>Clear filters</Button></Box>}
-    {!groups&&c.pages>1&&<Stack alignItems="center" sx={S.pager}><Pagination count={c.pages} page={c.cur} onChange={(_,p)=>c.goPage(p)} color="primary" shape="rounded" siblingCount={0}/></Stack>}
-  </Page>;
+  const f = useCourseFilters();
+  const active = TRACKS.find((t) => t.id === f.track);
+  usePageMeta({
+    title: active ? `${active.name}: AI courses` : 'All AI courses',
+    description: active
+      ? `${active.blurb} ${coursesIn(active.id).length} courses with hands-on projects and a certificate.`
+      : `Browse all ${COURSES.length} Takxila AI courses across 5 tracks: AI challenges, AI agents, the AI toolkit, careers and AI filmmaking. ${FREE_COURSES.length} free, paid from ${fmt(LOWEST_PRICE)}.`,
+    path: '/courses',
+    jsonLd: [courseListLd(COURSES)],
+  });
+  const filtered = f.track !== 'all' || f.free || !!f.q;
+
+  return (
+    <>
+      <PageHero
+        kick={active ? active.tagline : 'Course catalogue'}
+        title={active ? active.name : <>Every AI skill, <span className="grad">one academy</span></>}
+        sub={active ? active.blurb : `${COURSES.length} practical courses across five tracks. ${FREE_COURSES.length} are free and paid courses start at ${fmt(LOWEST_PRICE)}.`}
+      />
+      <section className="sec sec-tight">
+        <div className="wrap">
+          <div className="filters" role="search">
+            <label className="search">
+              <Icon name="search" size={18} />
+              <span className="sr-only">Search courses</span>
+              <input
+                type="search"
+                placeholder="Search: Claude, agents, video, Excel…"
+                value={f.q}
+                onChange={(e) => f.update({ q: e.target.value || null })}
+                data-testid="course-search"
+              />
+            </label>
+            <label className="select">
+              <span className="sr-only">Sort</span>
+              <select value={f.sort} onChange={(e) => f.update({ sort: e.target.value === 'popular' ? null : (e.target.value as SortKey) })}>
+                {SORTS.map(([k, label]) => (
+                  <option key={k} value={k}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+              <Icon name="chevronDown" size={16} />
+            </label>
+          </div>
+          <div className="pills" aria-label="Filter by track">
+            <button type="button" className={'pill' + (f.track === 'all' ? ' is-on' : '')} onClick={() => f.update({ track: null })} aria-pressed={f.track === 'all'}>
+              All tracks <span>{COURSES.length}</span>
+            </button>
+            {TRACKS.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                className={'pill' + (f.track === t.id ? ' is-on' : '')}
+                style={{ ['--c' as string]: t.color }}
+                onClick={() => f.update({ track: t.id })}
+                aria-pressed={f.track === t.id}
+              >
+                <Icon name={t.icon} size={15} />
+                {t.name} <span>{coursesIn(t.id).length}</span>
+              </button>
+            ))}
+            <button type="button" className={'pill pill-free' + (f.free ? ' is-on' : '')} onClick={() => f.update({ price: f.free ? null : 'free' })} aria-pressed={f.free}>
+              <Icon name="gift" size={15} /> Free only
+            </button>
+          </div>
+          <p className="result-line" aria-live="polite">
+            {f.list.length} {f.list.length === 1 ? 'course' : 'courses'}
+            {filtered && (
+              <button type="button" className="btn-text" onClick={f.clear}>
+                Clear filters
+              </button>
+            )}
+          </p>
+          {f.list.length ? (
+            <div className="cgrid">
+              {f.list.map((c, i) => (
+                <CourseCard key={c.id} c={c} eager={i < 3} from="catalogue" />
+              ))}
+            </div>
+          ) : (
+            <div className="empty">
+              <Icon name="search" size={28} />
+              <h2>No course matches “{f.q}”</h2>
+              <p className="muted">Try a tool name like Claude, Gemini or n8n, or take the quiz and we will pick for you.</p>
+              <Link to="/ai-course-finder" className="btn btn-gold">
+                Get my AI score
+              </Link>
+            </div>
+          )}
+          {active && MAIN_CATEGORIES[active.id] && (
+            <p className="cat-link">
+              <a className="btn-text" href={mainUrl(MAIN_CATEGORIES[active.id]!, 'catalogue_category')} rel="noopener">
+                See this track on the academy <Icon name="arrowUpRight" size={15} />
+              </a>
+            </p>
+          )}
+        </div>
+      </section>
+    </>
+  );
 }

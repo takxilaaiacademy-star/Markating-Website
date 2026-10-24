@@ -1,56 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import SchoolIcon from '@mui/icons-material/SchoolRounded';
-import WorkIcon from '@mui/icons-material/WorkRounded';
-import TrendingUpIcon from '@mui/icons-material/TrendingUpRounded';
-import TimerIcon from '@mui/icons-material/TimerRounded';
-import BrushIcon from '@mui/icons-material/BrushRounded';
-import RocketIcon from '@mui/icons-material/RocketLaunchRounded';
-import CelebrationIcon from '@mui/icons-material/CelebrationRounded';
-import BusinessCenterIcon from '@mui/icons-material/BusinessCenterRounded';
-import StorefrontIcon from '@mui/icons-material/StorefrontRounded';
-import VideocamIcon from '@mui/icons-material/VideocamRounded';
-import CampaignIcon from '@mui/icons-material/CampaignRounded';
-import CodeIcon from '@mui/icons-material/CodeRounded';
-import CalculateIcon from '@mui/icons-material/CalculateRounded';
-import ViewKanbanIcon from '@mui/icons-material/ViewKanbanRounded';
-import PersonSearchIcon from '@mui/icons-material/PersonSearchRounded';
-import FamilyIcon from '@mui/icons-material/FamilyRestroomRounded';
-import CastEducationIcon from '@mui/icons-material/CastForEducationRounded';
-import ToysIcon from '@mui/icons-material/ToysRounded';
-import GamesIcon from '@mui/icons-material/SportsEsportsRounded';
-import BackpackIcon from '@mui/icons-material/BackpackRounded';
-import LaptopIcon from '@mui/icons-material/LaptopMacRounded';
-import CafeIcon from '@mui/icons-material/LocalCafeRounded';
-import SpaIcon from '@mui/icons-material/SpaRounded';
-import ChatIcon from '@mui/icons-material/ChatBubbleRounded';
-import RepeatIcon from '@mui/icons-material/EventRepeatRounded';
-import SmartToyIcon from '@mui/icons-material/SmartToyRounded';
-import ForumIcon from '@mui/icons-material/ForumRounded';
-import PsychologyIcon from '@mui/icons-material/PsychologyRounded';
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesomeRounded';
-import PaletteIcon from '@mui/icons-material/PaletteRounded';
-import MovieIcon from '@mui/icons-material/MovieRounded';
-import TerminalIcon from '@mui/icons-material/TerminalRounded';
-import HubIcon from '@mui/icons-material/HubRounded';
-import BlockIcon from '@mui/icons-material/BlockRounded';
-import DoNotTouchIcon from '@mui/icons-material/DoNotTouchRounded';
-import VisibilityIcon from '@mui/icons-material/VisibilityRounded';
-import DataObjectIcon from '@mui/icons-material/DataObjectRounded';
-import WhatsAppIcon from '@mui/icons-material/WhatsApp';
-import GraphicEqIcon from '@mui/icons-material/GraphicEqRounded';
-import InsightsIcon from '@mui/icons-material/InsightsRounded';
-import MenuBookIcon from '@mui/icons-material/MenuBookRounded';
-import ScheduleIcon from '@mui/icons-material/ScheduleRounded';
-import TrophyIcon from '@mui/icons-material/EmojiEventsRounded';
-import BoltIcon from '@mui/icons-material/BoltRounded';
-import CalendarIcon from '@mui/icons-material/CalendarMonthRounded';
-import EventIcon from '@mui/icons-material/EventRounded';
-import ExploreIcon from '@mui/icons-material/ExploreRounded';
-import GiftIcon from '@mui/icons-material/CardGiftcardRounded';
-import SavingsIcon from '@mui/icons-material/SavingsRounded';
-import PaymentsIcon from '@mui/icons-material/PaymentsRounded';
-import DiamondIcon from '@mui/icons-material/DiamondRounded';
-import GroupsIcon from '@mui/icons-material/GroupsRounded';
 import { useToast } from '../../context/types';
 import { fitsScore, scoreRange } from '../../data/calcScores';
 import { CALC_QB, QB } from '../../data/quiz';
@@ -264,32 +212,32 @@ export function useAnimatedNumber(target: number, ms = 900) {
   return v;
 }
 
-type Icon = typeof SchoolIcon;
+type Icon = string;
 export interface OptionLook {
   icon: Icon;
   color: string;
 }
 const HUES = ['#6366F1', '#0EA5E9', '#10B981', '#F59E0B', '#EC4899', '#8B5CF6', '#EF4444', '#14B8A6'];
 const ICONS: Record<string, Record<string, Icon>> = {
-  goal: { job: WorkIcon, grow: TrendingUpIcon, time: TimerIcon, create: BrushIcon, build: RocketIcon, fun: CelebrationIcon },
+  goal: { job: 'briefcase', grow: 'trendingUp', time: 'timer', create: 'brush', build: 'rocket', fun: 'sparkles' },
   prof: {
-    student: SchoolIcon, pro: BusinessCenterIcon, biz: StorefrontIcon, creator: VideocamIcon, marketer: CampaignIcon, dev: CodeIcon,
-    finance: CalculateIcon, pm: ViewKanbanIcon, job: PersonSearchIcon, parent: FamilyIcon, teacher: CastEducationIcon,
+    student: 'cap', pro: 'briefcase', biz: 'store', creator: 'video', marketer: 'megaphone', dev: 'code',
+    finance: 'calculator', pm: 'kanban', job: 'search', parent: 'users', teacher: 'book',
   },
-  age: { kid: ToysIcon, teen: GamesIcon, young: BackpackIcon, adult: LaptopIcon, senior: CafeIcon },
-  level: { new: SpaIcon, tried: ChatIcon, weekly: RepeatIcon, build: SmartToyIcon },
-  tools: { chatgpt: ForumIcon, claude: PsychologyIcon, gemini: AutoAwesomeIcon, image: PaletteIcon, video: MovieIcon, code: TerminalIcon, auto: HubIcon, none: BlockIcon },
-  coding: { none: DoNotTouchIcon, read: VisibilityIcon, some: DataObjectIcon, dev: TerminalIcon },
+  age: { kid: 'baby', teen: 'gamepad', young: 'cap', adult: 'laptop', senior: 'coffee' },
+  level: { new: 'leaf', tried: 'message', weekly: 'repeat', build: 'bot' },
+  tools: { chatgpt: 'message', claude: 'sparkles', gemini: 'sparkles', image: 'palette', video: 'film', code: 'terminal', auto: 'workflow', none: 'ban' },
+  coding: { none: 'ban', read: 'eye', some: 'braces', dev: 'terminal' },
   interests: {
-    chat: ForumIcon, code: CodeIcon, agents: SmartToyIcon, wa: WhatsAppIcon, mkt: CampaignIcon, design: PaletteIcon, video: MovieIcon,
-    audio: GraphicEqIcon, career: WorkIcon, money: InsightsIcon, research: MenuBookIcon, biz: StorefrontIcon,
+    chat: 'message', code: 'code', agents: 'bot', wa: 'whatsapp', mkt: 'megaphone', design: 'palette', video: 'film',
+    audio: 'wave', career: 'briefcase', money: 'chart', research: 'book', biz: 'store',
   },
-  time: { lt2: TimerIcon, mid: ScheduleIcon, gt5: RocketIcon },
-  style: { daily: TrophyIcon, self: MenuBookIcon, quick: BoltIcon },
-  urgency: { week: BoltIcon, month: CalendarIcon, quarter: EventIcon, relax: ExploreIcon },
-  budget: { free: GiftIcon, '299': SavingsIcon, '499': PaymentsIcon, any: DiamondIcon },
+  time: { lt2: 'timer', mid: 'clock', gt5: 'rocket' },
+  style: { daily: 'trophy', self: 'book', quick: 'zap' },
+  urgency: { week: 'zap', month: 'calendar', quarter: 'calendar', relax: 'compass' },
+  budget: { free: 'gift', '299': 'wallet', '499': 'wallet', any: 'gem' },
 };
-export const lookOf = (qid: string, v: string, i: number): OptionLook => ({ icon: ICONS[qid]?.[v] ?? AutoAwesomeIcon, color: HUES[i % HUES.length] });
+export const lookOf = (qid: string, v: string, i: number): OptionLook => ({ icon: ICONS[qid]?.[v] ?? 'sparkles', color: HUES[i % HUES.length] });
 
 export const INFO_HUES = ['#6366F1', '#EC4899', '#10B981', '#F59E0B'];
 export interface Insight {
@@ -302,15 +250,15 @@ export interface Insight {
 const INSIGHTS: Record<string, (a: Answers) => Insight> = {
   age: () => ({
     id: 'company', kick: 'GOOD TO KNOW', title: "You're in good company",
-    text: '1,200+ learners started their AI journey with this exact quiz. Most began with zero experience.', icons: [GroupsIcon, SchoolIcon, WorkIcon, CelebrationIcon],
+    text: '1,200+ learners started their AI journey with this exact quiz. Most began with zero experience.', icons: ['users', 'cap', 'briefcase', 'sparkles'],
   }),
   coding: (a) =>
     one(a.coding) === 'none' || one(a.coding) === 'read'
-      ? { id: 'nocode', kick: 'NO CODE NEEDED', title: 'Code is optional here', text: 'Most of our courses use ready-made AI tools. You build real things with prompts, clicks and templates.', icons: [AutoAwesomeIcon, PaletteIcon, HubIcon, ChatIcon] }
-      : { id: 'code', kick: 'NICE', title: 'Coding skills go a long way with AI', text: 'You can go further with agents, automations and AI coding tools. We will point you to the deeper tracks.', icons: [TerminalIcon, SmartToyIcon, HubIcon, RocketIcon] },
+      ? { id: 'nocode', kick: 'NO CODE NEEDED', title: 'Code is optional here', text: 'Most of our courses use ready-made AI tools. You build real things with prompts, clicks and templates.', icons: ['sparkles', 'palette', 'workflow', 'message'] }
+      : { id: 'code', kick: 'NICE', title: 'Coding skills go a long way with AI', text: 'You can go further with agents, automations and AI coding tools. We will point you to the deeper tracks.', icons: ['terminal', 'bot', 'workflow', 'rocket'] },
   style: (a) => ({
     id: 'habit', kick: 'SMALL STEPS, BIG RESULTS', title: one(a.time) === 'lt2' ? '15 minutes a day is enough' : 'Your time adds up fast',
-    text: 'Learners who practise a little every day are far more likely to finish a course than those who cram once a week.', icons: [TimerIcon, TrendingUpIcon, TrophyIcon, BoltIcon],
+    text: 'Learners who practise a little every day are far more likely to finish a course than those who cram once a week.', icons: ['timer', 'trendingUp', 'trophy', 'zap'],
   }),
 };
 
@@ -341,8 +289,16 @@ const LEAD_KEY = 'calc_lead';
 
 export function useCalcFunnel() {
   const toast = useToast();
-  const [calc, setCalc] = useState<Answers | null>(() => load<Answers | null>(CALC_KEY, null));
-  const [phase, setPhase] = useState<Phase>(() => (calc ? 'result' : 'quiz'));
+  const [calc, setCalc] = useState<Answers | null>(null);
+  const [phase, setPhase] = useState<Phase>('quiz');
+  // A saved result is restored after the first paint, so the page matches its prerendered HTML.
+  useEffect(() => {
+    const saved = load<Answers | null>(CALC_KEY, null);
+    if (saved) {
+      setCalc(saved);
+      setPhase('result');
+    }
+  }, []);
   const [idx, setIdx] = useState(0);
   const [ans, setAns] = useState<Answers>({});
   const [flash, setFlash] = useState<string | null>(null);

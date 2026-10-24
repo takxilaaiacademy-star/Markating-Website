@@ -1,31 +1,24 @@
-import { Box, Button, ButtonBase, CircularProgress, IconButton, LinearProgress, Typography } from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBackRounded';
-import CheckIcon from '@mui/icons-material/CheckRounded';
-import CheckCircleIcon from '@mui/icons-material/CheckCircleRounded';
-import PendingIcon from '@mui/icons-material/RadioButtonUncheckedRounded';
-import LockOpenIcon from '@mui/icons-material/LockOpenRounded';
+import Icon from '../../components/Icon';
 import LeadForm from '../../components/LeadForm';
 import type { Question } from '../../types';
 import { ANALYSE_STEPS, INFO_HUES, lookOf, type CalcFunnel, type Insight } from './types';
-import * as S from './styles';
 
 export function FunnelTop({ f }: { f: CalcFunnel }) {
   return (
-    <>
-      <Box sx={S.topBar}>
-        <IconButton onClick={f.back} disabled={!f.canBack} aria-label="Previous question" sx={S.backBtn(f.canBack)}>
-          <ArrowBackIcon />
-        </IconButton>
-        <Typography sx={S.stepCount} aria-live="polite">
-          {f.qNum}{' '}
-          <Box component="span" sx={S.stepOf}>
-            / {f.total}
-          </Box>
-        </Typography>
-        <span />
-      </Box>
-      <LinearProgress variant="determinate" value={f.progress} sx={S.bar} aria-label={`Question ${f.qNum} of ${f.total}`} />
-    </>
+    <div className="fn-top">
+      <div className="fn-bar-row">
+        <button type="button" className="icon-btn" onClick={f.back} disabled={!f.canBack} aria-label="Previous question">
+          <Icon name="arrowLeft" size={20} />
+        </button>
+        <span className="fn-count" aria-live="polite">
+          {f.qNum} <span>/ {f.total}</span>
+        </span>
+        <span style={{ width: 40 }} />
+      </div>
+      <div className="fn-bar" role="progressbar" aria-valuenow={Math.round(f.progress)} aria-valuemin={0} aria-valuemax={100} aria-label={`Question ${f.qNum} of ${f.total}`}>
+        <i style={{ width: f.progress + '%' }} />
+      </div>
+    </div>
   );
 }
 
@@ -33,111 +26,109 @@ export function QuestionScreen({ f, q }: { f: CalcFunnel; q: Question }) {
   const grid = q.opts.length > 6;
   const multi = !!q.multi;
   return (
-    <Box sx={S.screenIn}>
-      <Typography component="h1" ref={f.headRef} tabIndex={-1} sx={S.qTitle}>
+    <div className="fn-screen">
+      <h1 className="fn-q" ref={f.headRef} tabIndex={-1}>
         {q.q}
-      </Typography>
-      <Typography sx={S.qSub}>{q.sub}</Typography>
-      <Box sx={grid ? S.optGrid : S.optList} role="group" aria-label={q.q}>
+      </h1>
+      <p className="fn-sub">{q.sub}</p>
+      <div className={grid ? 'opts opts-grid' : 'opts'} role="group" aria-label={q.q}>
         {q.opts.map(([v, label], i) => {
           const on = f.isOn(v);
-          const { icon: Icon, color } = lookOf(q.id, v, i);
+          const { icon, color } = lookOf(q.id, v, i);
           return (
-            <ButtonBase key={v} focusRipple aria-pressed={on} onClick={() => f.pick(v)} sx={grid ? S.optTile(on) : S.optRow(on)} data-testid={`opt-${q.id}-${v}`}>
-              <Box sx={S.iconTile(color, grid)} aria-hidden>
-                <Icon />
-              </Box>
-              <Typography component="span" sx={grid ? S.tileLabel : S.optLabel}>
-                {label}
-              </Typography>
-              <Box sx={S.mark(on, multi, grid)} aria-hidden>
-                {on && <CheckIcon />}
-              </Box>
-            </ButtonBase>
+            <button key={v} type="button" aria-pressed={on} onClick={() => f.pick(v)} className={'opt' + (on ? ' is-on' : '')} style={{ ['--c' as string]: color }} data-testid={`opt-${q.id}-${v}`}>
+              <span className="opt-ico" aria-hidden="true">
+                <Icon name={icon} size={20} />
+              </span>
+              <span className="opt-label">{label}</span>
+              <span className={'opt-mark' + (multi ? ' is-multi' : '')} aria-hidden="true">
+                {on && <Icon name="check" size={14} />}
+              </span>
+            </button>
           );
         })}
-      </Box>
+      </div>
       {multi && (
-        <Box sx={S.continueBar}>
-          <Button fullWidth size="large" variant="contained" disabled={!f.canContinue} onClick={f.cont} sx={S.continueBtn} data-testid="calc-continue">
+        <div className="fn-continue">
+          <button type="button" className="btn btn-gold btn-lg" disabled={!f.canContinue} onClick={f.cont} data-testid="calc-continue">
             Continue
-          </Button>
-        </Box>
+          </button>
+        </div>
       )}
-    </Box>
+    </div>
   );
 }
 
 export function InfoScreen({ f, info }: { f: CalcFunnel; info: Insight }) {
-  const [Main, ...rest] = info.icons;
+  const [main, ...rest] = info.icons;
   return (
-    <Box sx={S.info}>
-      <Box sx={S.infoArt} aria-hidden>
-        <Box sx={S.infoHalo}>
-          <Main />
-        </Box>
-        {rest.map((Icon, i) => (
-          <Box key={i} sx={S.infoBubble(i, INFO_HUES[i])}>
-            <Icon />
-          </Box>
+    <div className="fn-screen fn-info">
+      <div className="info-art" aria-hidden="true">
+        <span className="info-halo">
+          <Icon name={main} size={40} />
+        </span>
+        {rest.map((ic, i) => (
+          <span key={i} className={'info-bub b' + i} style={{ background: INFO_HUES[i] }}>
+            <Icon name={ic} size={18} />
+          </span>
         ))}
-      </Box>
-      <Typography variant="overline" sx={S.infoKick}>
-        {info.kick}
-      </Typography>
-      <Typography component="h1" ref={f.headRef} tabIndex={-1} sx={S.infoTitle}>
+      </div>
+      <p className="kick">{info.kick}</p>
+      <h1 className="fn-q" ref={f.headRef} tabIndex={-1}>
         {info.title}
-      </Typography>
-      <Typography sx={S.infoText}>{info.text}</Typography>
-      <Box sx={S.infoCta}>
-        <Button fullWidth size="large" variant="contained" onClick={f.cont} sx={S.continueBtn} data-testid="calc-continue">
+      </h1>
+      <p className="fn-sub">{info.text}</p>
+      <div className="fn-continue">
+        <button type="button" className="btn btn-gold btn-lg" onClick={f.cont} data-testid="calc-continue">
           Continue
-        </Button>
-      </Box>
-    </Box>
+        </button>
+      </div>
+    </div>
   );
 }
 
 export function Analysing({ f }: { f: CalcFunnel }) {
+  const R = 58;
+  const C = 2 * Math.PI * R;
   return (
-    <Box sx={S.analyse} role="status" aria-live="polite">
-      <Box sx={S.ring}>
-        <CircularProgress variant="determinate" value={100} size={132} thickness={3.2} sx={S.ringTrack} />
-        <CircularProgress variant="determinate" value={f.pct} size={132} thickness={3.2} sx={S.ringFill} />
-        <Typography sx={S.ringNum}>{Math.round(f.pct)}%</Typography>
-      </Box>
-      <Typography component="h1" ref={f.headRef} tabIndex={-1} sx={S.qTitle}>
+    <div className="fn-screen fn-analyse" role="status" aria-live="polite">
+      <div className="ring">
+        <svg viewBox="0 0 132 132" width="132" height="132">
+          <circle cx="66" cy="66" r={R} className="ring-track" />
+          <circle cx="66" cy="66" r={R} className="ring-fill" strokeDasharray={C} strokeDashoffset={C * (1 - f.pct / 100)} transform="rotate(-90 66 66)" />
+        </svg>
+        <b>{Math.round(f.pct)}%</b>
+      </div>
+      <h1 className="fn-q" ref={f.headRef} tabIndex={-1}>
         Analysing your answers…
-      </Typography>
-      <Typography sx={S.qSub}>Picking the right level and courses for you.</Typography>
-      <Box sx={S.checklist}>
+      </h1>
+      <p className="fn-sub">Picking the right level and courses for you.</p>
+      <ul className="checklist">
         {ANALYSE_STEPS.map((t, i) => {
           const done = i < f.doneSteps;
           return (
-            <Box key={t} sx={S.checkRow(done || i === f.doneSteps)}>
-              {done ? <CheckCircleIcon sx={S.checkIcon(true)} /> : <PendingIcon sx={S.checkIcon(false)} />}
-              <Typography sx={S.checkText}>{t}</Typography>
-            </Box>
+            <li key={t} className={done ? 'is-done' : i === f.doneSteps ? 'is-now' : ''}>
+              <Icon name={done ? 'checkCircle' : 'circle'} size={18} />
+              {t}
+            </li>
           );
         })}
-      </Box>
-    </Box>
+      </ul>
+    </div>
   );
 }
 
 export function LeadGate({ f }: { f: CalcFunnel }) {
   return (
-    <Box sx={S.gate} data-testid="quiz-lead">
-      <Box sx={S.gateBadge} aria-hidden>
-        <LockOpenIcon />
-      </Box>
-      <Typography variant="overline" sx={S.infoKick}>
-        YOUR RESULT IS READY
-      </Typography>
-      <Typography component="h1" ref={f.headRef} tabIndex={-1} sx={S.qTitle}>
+    <div className="fn-screen fn-gate" data-testid="quiz-lead">
+      <span className="gate-badge" aria-hidden="true">
+        <Icon name="unlock" size={26} />
+      </span>
+      <p className="kick">Your result is ready</p>
+      <h1 className="fn-q" ref={f.headRef} tabIndex={-1}>
         Where should we send your AI plan?
-      </Typography>
-      <Typography sx={S.qSub}>Get your AI score, matched courses and a copy of your plan by email. A mentor can also help you on WhatsApp.</Typography>
+      </h1>
+      <p className="fn-sub">Get your AI score, matched courses and a copy of your plan by email. A mentor can also help you on WhatsApp.</p>
       <LeadForm
         source="quiz"
         fields={['name', 'email', 'phone']}
@@ -148,9 +139,9 @@ export function LeadGate({ f }: { f: CalcFunnel }) {
         onSent={() => f.showResult(true)}
         testId="quiz-lead-form"
       />
-      <Button size="small" color="inherit" onClick={() => f.showResult(false)} sx={S.skip} data-testid="quiz-skip">
+      <button type="button" className="btn-text fn-skip" onClick={() => f.showResult(false)} data-testid="quiz-skip">
         Skip and see my result
-      </Button>
-    </Box>
+      </button>
+    </div>
   );
 }

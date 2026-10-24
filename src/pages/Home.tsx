@@ -1,355 +1,522 @@
-import type { ReactNode } from 'react';
-import { Box, Button, Chip, Container, Grid, Stack, Typography } from '@mui/material';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import PlayCircleIcon from '@mui/icons-material/PlayCircleOutline';
-import SchoolIcon from '@mui/icons-material/SchoolOutlined';
-import QuizIcon from '@mui/icons-material/QuizOutlined';
-import { Link as RouterLink } from 'react-router-dom';
-import { FREE_ROADMAP } from '../config/marketing';
-import { COURSES, GROUP_PILLS } from '../data/courses';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import CourseCard from '../components/CourseCard';
+import Icon from '../components/Icon';
+import { LazyLoop } from '../components/Media';
+import { Faq, SectionHead } from '../components/Section';
+import { cardTitle, fmt } from '../components/types';
+import { LEARNERS, TESTIMONIALS } from '../config/marketing';
 import { FAQ } from '../data/content';
+import { COURSES } from '../data/courses';
 import { courseById } from '../data/recommend';
-import { CourseIcon } from '../components/CourseIcon';
-import Faq from '../components/Faq';
-import LeadForm from '../components/LeadForm';
-import { BlobImg, CourseVideo } from '../components/Media';
-import { CountUp } from '../components/Motion';
-import { LogoFull } from '../components/Logo';
-import { usePreview } from '../components/Preview';
-import { ComboPacks, ComparisonTable, CourseFaq, HowItWorks, NumberedGrid, Perks, Plans, Testimonials } from '../components/Showcase';
-import { FlipWords, GradientText, GridBackdrop, InfiniteRow, Lamp, Meteors, MovingBorderButton, Sparkles, Spotlight, Steps, TextGenerate, TiltCard } from '../components/fx';
-import { totalLessons } from '../components/types';
-import { courseListLd, faqLd, usePageMeta } from '../utils/seo';
-import { BENTO, HERO_WORDS, heroStats, homeLinks, JOURNEY, ORBIT, proofStats, useChallenge, useCourseShowcase } from './types';
-import { landingStyles as S } from './styles';
+import { COMPARE_COLS, COMPARE_PRICE, COMPARE_ROWS } from '../data/showcase';
+import { BESTSELLERS, FREE_COURSES, LOWEST_PRICE, TOOLS, TRACKS, coursesIn, fromPrice } from '../data/tracks';
+import { enrollUrl, registerUrl } from '../utils/links';
+import { faqLd, usePageMeta } from '../utils/seo';
+import { PERSONAS, STEPS, totalHours } from './types';
+import type { GroupId } from '../types';
 
-function Section({ id, kick, title, hl, sub, children }: { id?: string; kick: string; title: string; hl: string; sub?: string; children: ReactNode }) {
-  return (
-    <Box id={id} component="section" className="tx-defer" sx={S.section}>
-      <Container maxWidth="lg">
-        <Box sx={S.sectionHead}>
-          <Chip label={kick} size="small" variant="outlined" sx={S.kick} />
-          <Typography variant="h2" sx={S.sectionTitle}>
-            {title} <GradientText>{hl}</GradientText>
-          </Typography>
-          {sub && (
-            <Typography color="text.secondary" sx={S.sectionSub}>
-              {sub}
-            </Typography>
-          )}
-        </Box>
-        {children}
-      </Container>
-    </Box>
-  );
-}
+const pick = (ids: string[]) => ids.map((id) => courseById(id)!).filter(Boolean);
 
 function Hero() {
-  const links = homeLinks();
+  const deck = pick(['claude-code', 'n8n-agents', 'film-3']);
   return (
-    <Box component="section" sx={S.hero}>
-      <GridBackdrop />
-      <Spotlight sx={S.spotlight} />
-      <Meteors n={12} />
-      <Container maxWidth="lg" sx={S.heroInner}>
-        <Grid container spacing={{ xs: 6, md: 4 }} alignItems="center">
-          <Grid item xs={12} md={7}>
-            <Chip icon={<SchoolIcon />} label={`${COURSES.length} courses · ${GROUP_PILLS.length} tracks · ${totalLessons()}+ lessons`} variant="outlined" sx={S.heroChip} />
-            <Typography variant="h1" sx={S.heroTitle}>
-              <TextGenerate text="Master the AI frameworks." hl={['AI']} />
-              <br />
-              <TextGenerate text="Own the AI future." delay={320} sx={S.heroHl} />
-            </Typography>
-            <Typography color="text.secondary" sx={S.heroSub}>
-              Learn <FlipWords words={HERO_WORDS} sx={S.flip} /> step by step, with summary videos, hands-on projects, grades and a certificate.
-            </Typography>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={S.heroCtas}>
-              <MovingBorderButton filled href={links.register}>
-                Start learning free <ArrowForwardIcon fontSize="small" />
-              </MovingBorderButton>
-              <MovingBorderButton to="/ai-course-finder">
-                <QuizIcon fontSize="small" /> Find my AI course
-              </MovingBorderButton>
-            </Stack>
-            <Stack direction="row" spacing={{ xs: 3, md: 5 }} sx={S.heroStats}>
-              {heroStats().map(([v, pre, suf, l]) => (
-                <Box key={l}>
-                  <Typography sx={S.heroStat}>
-                    <CountUp value={v} prefix={pre} suffix={suf} />
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {l}
-                  </Typography>
-                </Box>
+    <section className="hero">
+      <div className="hero-bg" aria-hidden="true">
+        <div className="hero-grid" />
+        <div className="blob b1" />
+        <div className="blob b2" />
+        <div className="blob b3" />
+      </div>
+      <div className="wrap hero-in">
+        <div className="hero-copy">
+          <Link to="/courses" className="hero-chip">
+            <span className="hero-chip-dot" />
+            {COURSES.length} AI courses · 5 tracks · {FREE_COURSES.length} free
+            <Icon name="arrowRight" size={14} />
+          </Link>
+          <h1 className="hero-title">
+            <span>Master AI.</span> <span className="grad">Transform your career.</span> <span>Grow your business.</span>
+          </h1>
+          <p className="hero-sub">
+            Practical, framework-first AI courses taught step by step: AI agents, Claude, ChatGPT, Gemini, Midjourney, AI video and filmmaking, marketing and careers. Learn
+            by doing, finish real projects and earn a certificate.
+          </p>
+          <div className="hero-ctas">
+            <Link to="/courses" className="btn btn-gold btn-lg">
+              Explore all courses <Icon name="arrowRight" size={18} className="ico ico-move" />
+            </Link>
+            <Link to="/ai-course-finder" className="btn btn-ghost btn-lg">
+              <Icon name="target" size={18} /> Get my AI score
+            </Link>
+          </div>
+          <ul className="hero-trust">
+            <li>
+              <Icon name="gift" size={16} /> {FREE_COURSES.length} courses free
+            </li>
+            <li>
+              <Icon name="wallet" size={16} /> Paid from {fmt(LOWEST_PRICE)}
+            </li>
+            <li>
+              <Icon name="award" size={16} /> Certificate with a unique ID
+            </li>
+          </ul>
+        </div>
+        <div className="hero-art" aria-hidden="true">
+          <div className="deck">
+            {deck.map((c, i) => (
+              <img key={c.id} src={c.img} alt="" width="2250" height="660" className={'deck-card d' + i} {...(i === 0 ? { fetchpriority: "high" } : {})} decoding="async" />
+            ))}
+          </div>
+          <div className="float f1">
+            <span className="float-ico" style={{ background: 'var(--mint)' }}>
+              <Icon name="checkCircle" size={16} />
+            </span>
+            <span>
+              <b>Lesson complete</b>
+              <small>Build your first AI agent</small>
+            </span>
+          </div>
+          <div className="float f2">
+            <span className="float-ring">
+              8<small>/10</small>
+            </span>
+            <span>
+              <b>Your AI score</b>
+              <small>Advanced builder</small>
+            </span>
+          </div>
+          <div className="float f3">
+            <span className="float-ico" style={{ background: 'var(--gold)' }}>
+              <Icon name="award" size={16} />
+            </span>
+            <span>
+              <b>Certificate earned</b>
+              <small>ID TX-AIToolMst-14</small>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div className="wrap">
+        <dl className="stats">
+          <div>
+            <dt>Courses</dt>
+            <dd>{COURSES.length}</dd>
+          </div>
+          <div>
+            <dt>Hours of lessons</dt>
+            <dd>{Math.floor(totalHours / 50) * 50}+</dd>
+          </div>
+          <div>
+            <dt>AI tools covered</dt>
+            <dd>{TOOLS.length}+</dd>
+          </div>
+          <div>
+            <dt>Learners took the AI quiz</dt>
+            <dd>{LEARNERS.toLocaleString('en-IN')}+</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+  );
+}
+
+function Marquee() {
+  const row = [...TOOLS, ...TOOLS];
+  return (
+    <section className="marquee" aria-label="AI tools you will learn">
+      <p className="marquee-label">Learn the AI tools the world runs on</p>
+      <div className="marquee-track">
+        <ul className="marquee-row">
+          {row.map((t, i) => (
+            <li key={i} aria-hidden={i >= TOOLS.length}>
+              <Icon name="sparkles" size={14} />
+              {t}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+function Tracks() {
+  return (
+    <section className="sec" id="tracks">
+      <div className="wrap">
+        <SectionHead kick="Five learning tracks" title={<>Pick a track. <span className="grad">Own the outcome.</span></>} sub="Every track is a structured path from beginner to advanced, built around what you want AI to do for you." />
+        <div className="tracks">
+          {TRACKS.map((t, i) => {
+            const list = coursesIn(t.id);
+            const cover = courseById(t.cover)!;
+            const free = list.filter((c) => !c.price).length;
+            return (
+              <Link key={t.id} to={'/courses?track=' + t.id} className={'track t' + i} style={{ ['--c' as string]: t.color }}>
+                <div className="track-top">
+                  <span className="track-ico">
+                    <Icon name={t.icon} size={22} />
+                  </span>
+                  <span className="track-count">
+                    {list.length} courses{free ? ` · ${free} free` : ''}
+                  </span>
+                </div>
+                <h3 className="track-name">{t.name}</h3>
+                <p className="track-tag">{t.tagline}</p>
+                <p className="track-blurb">{t.blurb}</p>
+                <span className="track-foot">
+                  {free === list.length ? 'All free' : 'From ' + fmt(fromPrice(list))}
+                  <Icon name="arrowRight" size={16} />
+                </span>
+                <img className="track-cover" src={cover.img} alt="" width="2250" height="660" loading="lazy" decoding="async" />
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Bestsellers() {
+  const [tab, setTab] = useState<GroupId | 'all'>('all');
+  const top = pick(BESTSELLERS);
+  const list = tab === 'all' ? top.slice(0, 6) : coursesIn(tab).slice(0, 6);
+  return (
+    <section className="sec sec-alt" id="bestsellers">
+      <div className="wrap">
+        <SectionHead kick="Most loved" title="Learners' favourite AI courses" sub="Start with the courses most learners pick first. Every course has a summary video, hands-on projects and a certificate.">
+          <Link to="/courses" className="btn btn-ghost">
+            All {COURSES.length} courses <Icon name="arrowRight" size={16} className="ico ico-move" />
+          </Link>
+        </SectionHead>
+        <div className="tabs" role="tablist" aria-label="Filter by track">
+          {([['all', 'Best sellers'], ...TRACKS.map((t) => [t.id, t.name])] as [GroupId | 'all', string][]).map(([id, label]) => (
+            <button key={id} type="button" role="tab" aria-selected={tab === id} className={'tab' + (tab === id ? ' is-on' : '')} onClick={() => setTab(id)}>
+              {label}
+            </button>
+          ))}
+        </div>
+        <div className="cgrid">
+          {list.map((c) => (
+            <CourseCard key={c.id} c={c} from="home_best" />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FreeBand() {
+  return (
+    <section className="sec">
+      <div className="wrap">
+        <div className="freeband">
+          <div className="freeband-copy">
+            <p className="kick">Zero risk</p>
+            <h2 className="shead-title">
+              Start with <span className="grad">{FREE_COURSES.length} free courses</span>
+            </h2>
+            <p className="shead-sub">Create your free academy account and start learning in minutes. No card needed.</p>
+            <a className="btn btn-gold btn-lg" href={registerUrl('free_band')} rel="noopener">
+              Create my free account <Icon name="arrowRight" size={18} className="ico ico-move" />
+            </a>
+          </div>
+          <ul className="freelist">
+            {FREE_COURSES.map((c) => (
+              <li key={c.id}>
+                <Link to={'/course/' + c.id} className="freeitem">
+                  <img src={c.img} alt="" width="2250" height="660" loading="lazy" decoding="async" />
+                  <span>
+                    <b>{cardTitle(c)}</b>
+                    <small>{c.short}</small>
+                  </span>
+                  <span className="free-tag">FREE</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function HowItWorks() {
+  return (
+    <section className="sec" id="how">
+      <div className="wrap">
+        <SectionHead center kick="How it works" title="From curious to AI-ready in four steps" />
+        <ol className="steps">
+          {STEPS.map(([icon, title, text], i) => (
+            <li key={title} className="step">
+              <span className="step-n">0{i + 1}</span>
+              <span className="step-ico">
+                <Icon name={icon} size={22} />
+              </span>
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
+}
+
+function Why() {
+  const vid = courseById('claude-code')!;
+  return (
+    <section className="sec sec-alt" id="why">
+      <div className="wrap">
+        <SectionHead kick="Why Takxila" title={<>Built to make you <span className="grad">truly AI-ready</span></>} sub="Not a playlist of videos. A learning system with frameworks, practice and proof of skill." />
+        <div className="bento">
+          <div className="bx bx-quote">
+            <Icon name="quote" size={30} />
+            <p className="bx-big">Tools may change. Frameworks stay.</p>
+            <p className="muted">
+              Instead of teaching which buttons to click, our courses teach how to think, prompt, structure, analyse and automate, so your skills carry over to ChatGPT, Claude, Gemini and
+              the tools that are not out yet.
+            </p>
+          </div>
+          <div className="bx bx-video">
+            <LazyLoop src={vid.video} label="Course summary video preview" />
+            <div className="bx-video-cap">
+              <span className="bx-ico" style={{ ['--c' as string]: 'var(--gold)' }}>
+                <Icon name="play" size={20} />
+              </span>
+              <div>
+                <h3>Watch before you enroll</h3>
+                <p className="muted">Every course has a short summary video and a full curriculum, so you know exactly what you get.</p>
+              </div>
+            </div>
+          </div>
+          <div className="bx">
+            <span className="bx-ico" style={{ ['--c' as string]: 'var(--mint)' }}>
+              <Icon name="rocket" size={22} />
+            </span>
+            <h3>Learn by doing</h3>
+            <p className="muted">Prompts, exercises, challenges and a project after every module. You use AI, not just watch it.</p>
+          </div>
+          <div className="bx">
+            <span className="bx-ico" style={{ ['--c' as string]: 'var(--gold)' }}>
+              <Icon name="award" size={22} />
+            </span>
+            <h3>Certificate with a unique ID</h3>
+            <p className="muted">Finish every lesson and download a certificate you can verify and share on LinkedIn and your resume.</p>
+          </div>
+          <div className="bx">
+            <span className="bx-ico" style={{ ['--c' as string]: 'var(--sky)' }}>
+              <Icon name="chart" size={22} />
+            </span>
+            <h3>Grades, streaks, leaderboard</h3>
+            <p className="muted">Your academy dashboard tracks progress, grades and your learning streak, so you keep going.</p>
+          </div>
+          <div className="bx">
+            <span className="bx-ico" style={{ ['--c' as string]: 'var(--pink)' }}>
+              <Icon name="globe" size={22} />
+            </span>
+            <h3>Learn in your language</h3>
+            <p className="muted">The academy speaks 14 languages, and the Junior AI Challenge is taught in regional languages.</p>
+          </div>
+          <div className="bx">
+            <span className="bx-ico" style={{ ['--c' as string]: 'var(--violet)' }}>
+              <Icon name="headset" size={22} />
+            </span>
+            <h3>Real help when you are stuck</h3>
+            <p className="muted">1:1 guidance through the help desk, email and WhatsApp.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Compare() {
+  return (
+    <section className="sec" id="compare">
+      <div className="wrap wrap-narrow">
+        <SectionHead center kick="Compare" title="Structured like a premium course. Priced for everyone." />
+        <div className="compare" role="table" aria-label="Takxila compared with YouTube and other platforms">
+          <div className="cmp-row cmp-head" role="row">
+            <span role="columnheader">What you get</span>
+            {COMPARE_COLS.map((c, i) => (
+              <span key={c} role="columnheader" className={i === 0 ? 'is-us' : ''}>
+                {c}
+              </span>
+            ))}
+          </div>
+          {COMPARE_ROWS.map(([label, ...cells]) => (
+            <div key={label} className="cmp-row" role="row">
+              <span role="rowheader">{label}</span>
+              {cells.map((ok, i) => (
+                <span key={i} role="cell" className={(i === 0 ? 'is-us ' : '') + (ok ? 'yes' : 'no')}>
+                  <Icon name={ok ? 'check' : 'x'} size={18} />
+                  <span className="sr-only">{ok ? 'Yes' : 'No'}</span>
+                </span>
               ))}
-            </Stack>
-          </Grid>
-          <Grid item xs={12} md={5}>
-            <Box sx={S.orbitBox}>
-              <Box sx={S.orbitGlow} />
-              <Box sx={S.ringOuter} />
-              <Box sx={S.ringInner} />
-              <Sparkles n={18} />
-              <Box sx={S.logoFloat}>
-                <LogoFull width={190} />
-              </Box>
-              <Box sx={S.orbit}>
-                {ORBIT.map((id, i) => {
-                  const c = courseById(id);
-                  return c ? (
-                    <Box key={id} sx={S.orbitIcon(i, ORBIT.length)}>
-                      <CourseIcon c={c} size={44} />
-                    </Box>
-                  ) : null;
-                })}
-              </Box>
-            </Box>
-          </Grid>
-        </Grid>
-      </Container>
-    </Box>
+            </div>
+          ))}
+          <div className="cmp-row cmp-price" role="row">
+            <span role="rowheader">Typical price</span>
+            {COMPARE_PRICE.map((p, i) => (
+              <span key={p} role="cell" className={i === 0 ? 'is-us' : ''}>
+                {p}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 
-function BannerRows() {
-  const preview = usePreview();
-  const half = Math.ceil(COURSES.length / 2);
-  const row = (list: typeof COURSES) =>
-    list.map((c) => (
-      <Box key={c.id} onClick={() => preview(c.id)} sx={S.banner} role="button" aria-label={'Preview ' + c.title}>
-        <BlobImg src={c.img} alt={c.title} ratio="375 / 110" />
-      </Box>
-    ));
+function Personas() {
   return (
-    <Box sx={S.banners}>
-      <InfiniteRow seconds={70}>{row(COURSES.slice(0, half))}</InfiniteRow>
-      <InfiniteRow seconds={80} reverse>
-        {row(COURSES.slice(half))}
-      </InfiniteRow>
-    </Box>
+    <section className="sec sec-alt" id="for-you">
+      <div className="wrap">
+        <SectionHead kick="Made for you" title="Whoever you are, there is a path" />
+        <div className="personas">
+          {PERSONAS.map(([icon, who, line, id]) => {
+            const c = courseById(id)!;
+            return (
+              <Link key={who} to={'/course/' + id} className="persona">
+                <span className="persona-ico">
+                  <Icon name={icon} size={22} />
+                </span>
+                <h3>{who}</h3>
+                <p className="muted">{line}</p>
+                <span className="persona-pick">
+                  <span>
+                    <small>Start with</small>
+                    <b>{cardTitle(c)}</b>
+                  </span>
+                  <Icon name="arrowRight" size={15} />
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    </section>
   );
 }
 
-function ProofStats() {
+function QuizBand() {
   return (
-    <Box sx={S.proof} data-testid="proof-stats">
-      {proofStats().map(([v, pre, suf, l]) => (
-        <Box key={l} sx={S.proofCell}>
-          <Typography sx={S.proofNum}>
-            <CountUp value={v} prefix={pre} suffix={suf} />
-          </Typography>
-          <Typography color="text.secondary" sx={S.proofLabel}>
-            {l}
-          </Typography>
-        </Box>
-      ))}
-    </Box>
+    <section className="sec">
+      <div className="wrap">
+        <div className="quizband">
+          <div className="quizband-art" aria-hidden="true">
+            <svg viewBox="0 0 120 120" className="qgauge">
+              <circle cx="60" cy="60" r="50" className="qg-track" />
+              <circle cx="60" cy="60" r="50" className="qg-fill" />
+            </svg>
+            <span className="qgauge-num">
+              ?<small>/10</small>
+            </span>
+          </div>
+          <div className="quizband-copy">
+            <p className="kick">Free · 2 minutes</p>
+            <h2 className="shead-title">What is your AI score?</h2>
+            <p className="shead-sub">Answer 11 quick questions. Get your AI score out of 10, the courses that fit your goal, time and budget, and a learning plan.</p>
+            <Link to="/ai-course-finder" className="btn btn-gold btn-lg">
+              Take the free quiz <Icon name="arrowRight" size={18} className="ico ico-move" />
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 
-function Bento() {
+function Testimonials() {
+  if (!TESTIMONIALS.length) return null;
   return (
-    <Box sx={S.bento}>
-      {BENTO.map((b) => (
-        <Box key={b.title} sx={S.bentoCell(b.span)}>
-          <TiltCard sx={S.bentoCard}>
-            <Box sx={S.bentoIcon(b.color)}>
-              <b.icon />
-            </Box>
-            <Typography variant="h6" component="h3" sx={S.bentoTitle}>
-              {b.title}
-            </Typography>
-            <Typography color="text.secondary" sx={S.bentoText}>
-              {b.text}
-            </Typography>
-          </TiltCard>
-        </Box>
-      ))}
-    </Box>
+    <section className="sec" id="stories">
+      <div className="wrap">
+        <SectionHead center kick="Learner stories" title="What learners say" />
+        <div className="quotes">
+          {TESTIMONIALS.map((t) => (
+            <figure key={t.quote} className="quote">
+              <div className="stars" aria-hidden="true">
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <Icon key={i} name="star" size={15} />
+                ))}
+              </div>
+              <blockquote>“{t.quote}”</blockquote>
+              <figcaption>
+                <span className="quote-av" aria-hidden="true">
+                  {t.name[0]}
+                </span>
+                <span>
+                  <b>{t.name}</b>
+                  <small>
+                    {t.role} · {t.course}
+                  </small>
+                </span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
-function CourseShowcase() {
-  const { cat, setCat, list, shown, open } = useCourseShowcase();
+function FinalCta() {
+  const first = courseById('wa-agent')!;
   return (
-    <>
-      <Stack direction="row" gap={1} flexWrap="wrap" justifyContent="center" sx={S.pills}>
-        <Chip label={'All (' + COURSES.length + ')'} clickable color={cat === 'all' ? 'primary' : 'default'} variant={cat === 'all' ? 'filled' : 'outlined'} onClick={() => setCat('all')} />
-        {GROUP_PILLS.map(([id, label]) => (
-          <Chip key={id} label={label} clickable color={cat === id ? 'primary' : 'default'} variant={cat === id ? 'filled' : 'outlined'} onClick={() => setCat(id)} />
-        ))}
-      </Stack>
-      <Box key={cat}>
-        <NumberedGrid courses={shown} action={open} />
-      </Box>
-      <Box sx={S.more}>
-        <Button variant="outlined" size="large" component={RouterLink} to={cat === 'all' ? '/courses' : '/courses?cat=' + cat} endIcon={<ArrowForwardIcon />}>
-          {list.length > shown.length ? `See all ${list.length} courses` : 'Search and filter courses'}
-        </Button>
-      </Box>
-    </>
+    <section className="sec">
+      <div className="wrap">
+        <div className="final">
+          <div className="final-glow" aria-hidden="true" />
+          <h2 className="final-title">
+            The AI future is being built now.
+            <br />
+            <span className="grad">Build yours.</span>
+          </h2>
+          <p className="shead-sub">Your first AI agent course is free and takes 30 minutes. Start today on the Takxila AI Academy.</p>
+          <div className="hero-ctas is-center">
+            <a className="btn btn-gold btn-lg" href={enrollUrl(first, 'final_cta')} rel="noopener">
+              Start the free course <Icon name="arrowRight" size={18} className="ico ico-move" />
+            </a>
+            <Link to="/courses" className="btn btn-ghost btn-lg">
+              Browse courses
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
-
-function Challenge() {
-  const { c, off, href } = useChallenge();
-  return (
-    <Stack spacing={{ xs: 5, md: 7 }}>
-      <Grid container spacing={4} alignItems="center">
-        <Grid item xs={12} md={6}>
-          <Chip label="Most joined challenge" size="small" color="secondary" variant="outlined" sx={S.challengeChip} />
-          <Typography variant="h3" sx={S.challengeTitle}>
-            28 days challenge to become <GradientText>AI-ready</GradientText>
-          </Typography>
-          <Stack direction="row" spacing={1.5} alignItems="baseline" sx={S.priceRow}>
-            {c.was && (
-              <Typography color="text.secondary" sx={S.strike}>
-                ₹{c.was}
-              </Typography>
-            )}
-            <Typography sx={S.price}>₹{c.price}</Typography>
-            {off > 0 && <Chip size="small" color="success" label={off + '% OFF'} />}
-          </Stack>
-          <Typography color="text.secondary" sx={S.challengeDesc}>
-            {c.desc}
-          </Typography>
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
-            <Button variant="contained" size="large" endIcon={<ArrowForwardIcon />} component="a" href={href} rel="noopener">
-              Join the 28 days challenge
-            </Button>
-            <Button variant="outlined" size="large" component={RouterLink} to={'/course/' + c.id}>
-              See the curriculum
-            </Button>
-          </Stack>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <CourseVideo src={c.video} poster={c.img} title={c.title} />
-        </Grid>
-      </Grid>
-      <HowItWorks c={c} />
-      <Grid container spacing={4}>
-        <Grid item xs={12} md={6}>
-          <Typography variant="h4" sx={S.subTitle}>
-            Everything you get <GradientText>inside</GradientText>
-          </Typography>
-          <Perks />
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <Typography variant="h4" sx={S.subTitle}>
-            About the <GradientText>challenge</GradientText>
-          </Typography>
-          <CourseFaq skip={['Do I get a certificate?']} />
-        </Grid>
-      </Grid>
-    </Stack>
-  );
-}
-
-function Roadmap() {
-  return (
-    <Box sx={S.roadmap} id="roadmap">
-      <Grid container spacing={{ xs: 3, md: 5 }} alignItems="center">
-        <Grid item xs={12} md={6}>
-          <Chip label="FREE DOWNLOAD" size="small" color="secondary" sx={S.challengeChip} />
-          <Typography variant="h3" sx={S.challengeTitle}>
-            {FREE_ROADMAP.title}
-          </Typography>
-          <Typography color="text.secondary">{FREE_ROADMAP.sub}</Typography>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <LeadForm
-            source="roadmap"
-            fields={['name', 'email', 'phone']}
-            required={['name', 'email']}
-            cta="Send me the free roadmap"
-            done="Done! We will email your free AI roadmap shortly."
-            testId="roadmap-form"
-          />
-        </Grid>
-      </Grid>
-    </Box>
-  );
-}
-
-const journeyItems = JOURNEY.map(({ title, body, Icon }) => ({ title, body, icon: <Icon fontSize="small" /> }));
 
 export default function Home() {
-  const links = homeLinks();
   usePageMeta({
-    title: 'Takxila AI Academy · Practical AI courses, challenges and certificates',
-    description: `${COURSES.length} hands-on AI courses: AI agents, Claude AI, ChatGPT, Midjourney, AI filmmaking and AI for careers. Summary videos, projects and a verifiable certificate. Start free.`,
+    title: 'Takxila AI Academy · Master AI. Transform your career. Grow your business.',
+    description: `${COURSES.length} practical AI courses: AI agents, Claude, ChatGPT, Gemini, Midjourney, Kling, AI filmmaking, marketing and careers. Hands-on projects and a certificate. ${FREE_COURSES.length} courses free, paid from ${fmt(LOWEST_PRICE)}.`,
     path: '/',
-    jsonLd: [courseListLd(COURSES.filter((c) => c.featured)), faqLd(FAQ)],
+    jsonLd: [faqLd(FAQ)],
   });
   return (
-    <Box sx={S.page}>
+    <>
       <Hero />
-      <BannerRows />
-      <Container maxWidth="lg">
-        <ProofStats />
-      </Container>
-
-      <Section id="highlights" kick="WHY TAKXILA" title="Your learning," hl="all in one place" sub="A personal dashboard on the academy with your courses, streak, grades, certificates and leaderboard rank.">
-        <Bento />
-      </Section>
-
-      <Section id="courses" kick="ALL COURSES" title="Pick your next" hl="AI skill" sub="Tap any course to watch its summary video and see the full curriculum.">
-        <CourseShowcase />
-      </Section>
-
-      <Section id="challenges" kick="CHALLENGES" title="Learn daily." hl="Finish strong.">
-        <Challenge />
-      </Section>
-
-      <Section id="testimonials" kick="LEARNER STORIES" title="Learners who" hl="got AI-ready">
-        <Testimonials />
-      </Section>
-
-      <Section id="packs" kick="COMBO PACKS" title="Career-focused" hl="combo packs" sub="Bundles built around a role. The discount is applied in your academy cart automatically.">
-        <ComboPacks />
-        <Typography variant="h4" sx={S.plansTitle}>
-          Choose your perfect <GradientText>plan</GradientText>
-        </Typography>
-        <Plans />
-      </Section>
-
-      <Section id="compare" kick="COMPARE" title="Why learners" hl="trust Takxila">
-        <ComparisonTable />
-      </Section>
-
-      <Section id="journey" kick="HOW IT WORKS" title="From curious to" hl="certified">
-        <Steps items={journeyItems} />
-      </Section>
-
-      <Container maxWidth="lg">
-        <Roadmap />
-      </Container>
-
-      <Section id="faq" kick="FAQ" title="Questions," hl="answered">
-        <Box sx={S.faqWrap}>
-          <Faq />
-        </Box>
-      </Section>
-
-      <Lamp>
-        <Container maxWidth="md" sx={S.rel}>
-          <Sparkles n={30} />
-          <Typography variant="h2" sx={S.closingTitle}>
-            Start learning AI <GradientText>today.</GradientText>
-          </Typography>
-          <Typography color="text.secondary" sx={S.closingText}>
-            Your first AI agent course is free. It takes 30 minutes.
-          </Typography>
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center" alignItems="center" sx={S.rel}>
-            <MovingBorderButton filled href={links.free}>
-              Start the free course <ArrowForwardIcon fontSize="small" />
-            </MovingBorderButton>
-            <MovingBorderButton href={links.closing}>
-              <PlayCircleIcon fontSize="small" /> Create my free account
-            </MovingBorderButton>
-          </Stack>
-        </Container>
-      </Lamp>
-    </Box>
+      <Marquee />
+      <Tracks />
+      <Bestsellers />
+      <FreeBand />
+      <HowItWorks />
+      <Why />
+      <Personas />
+      <Compare />
+      <QuizBand />
+      <Testimonials />
+      <section className="sec sec-alt" id="faq">
+        <div className="wrap wrap-narrow">
+          <SectionHead center kick="FAQ" title="Questions, answered" />
+          <Faq items={FAQ} />
+        </div>
+      </section>
+      <FinalCta />
+    </>
   );
 }

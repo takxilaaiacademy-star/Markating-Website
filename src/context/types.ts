@@ -1,47 +1,44 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { flushSync } from 'react-dom';
-import type { AlertColor, PaletteMode } from '@mui/material';
-import { createAppTheme } from '../theme/theme';
-import { load, save } from '../utils/storage';
+import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import type { PageMeta } from '../utils/types';
 
+export type ToastKind = 'success' | 'info' | 'error';
 export interface Toast {
   id: number;
   text: string;
-  severity: AlertColor;
+  kind: ToastKind;
 }
 
 export interface AppValue {
-  mode: PaletteMode;
-  toggleMode: () => void;
-  toast: (text: string, severity?: AlertColor) => void;
+  toast: (text: string, kind?: ToastKind) => void;
 }
 
-export const themes = { dark: createAppTheme('dark'), light: createAppTheme('light') };
+export const AppContext = createContext<AppValue>({ toast: () => undefined });
+export const useToast = () => useContext(AppContext).toast;
 
-export const AppContext = createContext<AppValue>({ mode: 'dark', toggleMode: () => undefined, toast: () => undefined });
-export const useApp = () => useContext(AppContext);
-export const useThemeMode = () => {
-  const { mode, toggleMode } = useApp();
-  return { mode, toggleMode };
-};
-export const useToast = () => useApp().toast;
+/** Filled in while a page renders on the server, so the prerender step can write each page's own <head>. */
+export interface HeadCollector {
+  meta?: PageMeta;
+}
+export const HeadContext = createContext<HeadCollector | null>(null);
 
 export function useAppProvider() {
-  const [mode, setMode] = useState<PaletteMode>(() => (load<string>('theme', 'dark') === 'light' ? 'light' : 'dark'));
   const [note, setNote] = useState<Toast | null>(null);
+  const toast = useCallback((text: string, kind: ToastKind = 'success') => setNote({ id: Date.now(), text, kind }), []);
+  const value = useMemo(() => ({ toast }), [toast]);
+  return { value, note, closeNote: () => setNote(null) };
+}
 
-  useEffect(() => {
-    document.documentElement.dataset.theme = mode;
-    save('theme', mode);
-  }, [mode]);
-
-  const toggleMode = useCallback(() => {
-    const root = document.documentElement;
-    root.classList.add('tx-theming');
-    flushSync(() => setMode((m) => (m === 'dark' ? 'light' : 'dark')));
-    requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove('tx-theming')));
-  }, []);
-  const toast = useCallback((text: string, severity: AlertColor = 'success') => setNote({ id: Date.now(), text, severity }), []);
-  const value = useMemo(() => ({ mode, toggleMode, toast }), [mode, toggleMode, toast]);
-  return { value, theme: themes[mode], note, closeNote: () => setNote(null) };
+/** Light/dark lives on <html data-theme>, set before paint by index.html, so no React state is needed for it. */
+export function toggleTheme() {
+  const root = document.documentElement;
+  const next = root.dataset.theme === 'light' ? 'dark' : 'light';
+  root.classList.add('tx-theming');
+  root.dataset.theme = next;
+  try {
+    localStorage.setItem('tx_theme', JSON.stringify(next));
+  } catch {
+    /* private mode */
+  }
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', next === 'light' ? '#F6F7FB' : '#070B18');
+  requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove('tx-theming')));
 }

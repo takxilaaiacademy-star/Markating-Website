@@ -1,22 +1,28 @@
-import type { ReactNode } from 'react';
-import { Alert, CssBaseline, GlobalStyles, Snackbar, ThemeProvider } from '@mui/material';
+import { useEffect, type ReactNode } from 'react';
+import Icon from '../components/Icon';
 import { AppContext, useAppProvider } from './types';
-import { motion, toastStyles as S } from './styles';
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const { value, theme, note, closeNote } = useAppProvider();
+  const { value, note, closeNote } = useAppProvider();
+  useEffect(() => {
+    if (!note) return;
+    const t = setTimeout(closeNote, 4200);
+    return () => clearTimeout(t);
+  }, [note, closeNote]);
   return (
     <AppContext.Provider value={value}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <GlobalStyles styles={motion} />
-        {children}
-        <Snackbar key={note?.id} open={!!note} autoHideDuration={5000} onClose={closeNote} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} sx={S.snackbar}>
-          <Alert onClose={closeNote} severity={note?.severity ?? 'success'} variant="filled" sx={S.alert} data-testid="toast">
-            {note?.text}
-          </Alert>
-        </Snackbar>
-      </ThemeProvider>
+      {children}
+      <div className="toast-host" aria-live="polite">
+        {note && (
+          <div key={note.id} className={'toast toast-' + note.kind} role="status">
+            <Icon name={note.kind === 'error' ? 'x' : note.kind === 'info' ? 'sparkles' : 'checkCircle'} size={18} />
+            <span>{note.text}</span>
+            <button type="button" className="toast-x" onClick={closeNote} aria-label="Close">
+              <Icon name="x" size={16} />
+            </button>
+          </div>
+        )}
+      </div>
     </AppContext.Provider>
   );
 }

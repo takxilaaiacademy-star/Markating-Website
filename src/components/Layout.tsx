@@ -1,162 +1,303 @@
-import { Suspense } from 'react';
-import { Box, Button, CircularProgress, Drawer, IconButton, Link, List, ListItemButton, ListItemText, Menu, MenuItem, Stack, Typography } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import CloseIcon from '@mui/icons-material/Close';
-import DarkModeIcon from '@mui/icons-material/DarkModeOutlined';
-import LightModeIcon from '@mui/icons-material/LightModeOutlined';
-import TranslateIcon from '@mui/icons-material/Translate';
-import WhatsAppIcon from '@mui/icons-material/WhatsApp';
-import LocalOfferIcon from '@mui/icons-material/LocalOfferOutlined';
-import { Link as RouterLink, Outlet, useLocation } from 'react-router-dom';
-import { whatsappLink } from '../config/site';
+import { useEffect, useState } from 'react';
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { FREE_ROADMAP, OFFER, POLICY_LINKS, SOCIAL_LINKS } from '../config/marketing';
+import { MAILTO_HREF, SITE, TEL_HREF, whatsappLink } from '../config/site';
+import { toggleTheme } from '../context/types';
 import { LANGS } from '../data/languages';
-import { loginUrl } from '../utils/links';
-import Background from './Background';
-import ErrorBoundary from './ErrorBoundary';
-import Footer from './Footer';
-import Logo from './Logo';
-import { PreviewProvider } from './Preview';
-import { NAV_LINKS, useHeader, useLayoutEffects, useOfferBar, useStickyCta } from './types';
-import { shellStyles as S } from './styles';
+import { TRACKS } from '../data/tracks';
+import { COURSES } from '../data/courses';
+import { allCoursesUrl, loginUrl, mainUrl, registerUrl } from '../utils/links';
+import { applySiteLanguage, savedLanguage } from '../utils/siteTranslate';
+import Icon from './Icon';
+import LeadForm from './LeadForm';
+import { NAV_LINKS, useMounted } from './types';
+import type { Lang } from '../types';
+
+export function Logo() {
+  return (
+    <Link to="/" className="logo notranslate" aria-label={SITE.name + ' home'}>
+      <img src="/assets/logo-mark-dark.webp" width="30" height="33" alt="" className="logo-dark" />
+      <img src="/assets/logo-mark.webp" width="30" height="33" alt="" className="logo-light" />
+      <span className="logo-text">
+        <b>TAKXILA</b>
+        <small>AI ACADEMY</small>
+      </span>
+    </Link>
+  );
+}
 
 function OfferBar() {
-  const { open, close, offer, href } = useOfferBar();
-  if (!open) return null;
+  const offerOn = OFFER.show && (!OFFER.endsOn || new Date(OFFER.endsOn + 'T23:59:59') >= new Date());
+  if (!offerOn) return null;
+  const close = () => {
+    document.documentElement.classList.add('tx-offer-off');
+    try {
+      sessionStorage.setItem('tx_offer_off', 'true');
+    } catch {
+      /* private mode */
+    }
+  };
   return (
-    <Box sx={S.offer} role="region" aria-label="Special offer" data-testid="offer-bar">
-      <LocalOfferIcon fontSize="small" sx={S.offerIcon} />
-      <Typography sx={S.offerText}>{offer.text}</Typography>
-      <Link href={href} rel="noopener" sx={S.offerLink} data-testid="offer-link">
-        {offer.cta}
-      </Link>
-      <IconButton size="small" onClick={close} aria-label="Hide offer" sx={S.offerClose}>
-        <CloseIcon fontSize="small" />
-      </IconButton>
-    </Box>
+    <div className="offer" role="region" aria-label="Offer">
+      <div className="wrap offer-in">
+        <span className="offer-pill">OFFER</span>
+        <span className="offer-text">{OFFER.text}</span>
+        <a className="offer-cta" href={mainUrl(OFFER.href, 'offer_bar')} rel="noopener">
+          {OFFER.cta} <Icon name="arrowRight" size={15} />
+        </a>
+        <button type="button" className="offer-x" onClick={close} aria-label="Hide the offer">
+          <Icon name="x" size={16} />
+        </button>
+      </div>
+    </div>
   );
 }
 
 function Header() {
-  const h = useHeader();
+  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const { pathname, search } = useLocation();
+  useEffect(() => setOpen(false), [pathname, search]);
+  useEffect(() => {
+    const on = () => setScrolled(window.scrollY > 8);
+    on();
+    window.addEventListener('scroll', on, { passive: true });
+    return () => window.removeEventListener('scroll', on);
+  }, []);
+  const [menuTop, setMenuTop] = useState(0);
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : '';
+    if (!open) return;
+    setMenuTop(document.querySelector('.hdr')?.getBoundingClientRect().bottom ?? 0);
+    const esc = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    window.addEventListener('keydown', esc);
+    return () => window.removeEventListener('keydown', esc);
+  }, [open]);
+
   return (
-    <Box component="header" sx={S.header(h.scrolled)}>
-      <Box sx={S.bar}>
-        <Box component={RouterLink} to="/" aria-label="Takxila AI Academy home" sx={S.logo}>
-          <Logo size={38} />
-        </Box>
-        <Stack component="nav" direction="row" spacing={0.5} sx={S.links} aria-label="Main">
-          {NAV_LINKS.map(([l, to]) => (
-            <Button key={to} component={RouterLink} to={to} color="inherit" sx={S.link(h.active(to))}>
-              {l}
-            </Button>
-          ))}
-        </Stack>
-        <Box sx={S.spacer} />
-        <IconButton onClick={(e) => h.setLangEl(e.currentTarget)} aria-label="Change language" sx={S.iconBtn}>
-          <TranslateIcon />
-        </IconButton>
-        <Menu anchorEl={h.langEl} open={!!h.langEl} onClose={() => h.setLangEl(null)} className="notranslate">
-          {LANGS.map(([code, label]) => (
-            <MenuItem key={code} selected={code === h.lang} onClick={() => h.pickLang(code)}>
+    <header className={'hdr' + (scrolled ? ' is-scrolled' : '')}>
+      <div className="wrap hdr-in">
+        <Logo />
+        <nav className="hdr-nav" aria-label="Main">
+          {NAV_LINKS.map(([label, to]) => (
+            <NavLink key={to} to={to} end className={({ isActive }) => 'hdr-link' + (isActive && !(to.includes('?') && !search) ? ' is-on' : '')}>
               {label}
-            </MenuItem>
+            </NavLink>
           ))}
-        </Menu>
-        <IconButton onClick={h.toggleMode} aria-label={h.mode === 'dark' ? 'Light theme' : 'Dark theme'} sx={S.iconBtn}>
-          {h.mode === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
-        </IconButton>
-        <Button color="inherit" component="a" href={loginUrl()} rel="noopener" sx={S.login} data-testid="login-link">
-          Log in
-        </Button>
-        <Button variant="contained" component="a" href={h.registerHref} rel="noopener" sx={S.cta} data-testid="register-link">
-          Start free
-        </Button>
-        <IconButton onClick={() => h.setDrawer(true)} sx={S.menu} aria-label="Open menu">
-          <MenuIcon />
-        </IconButton>
-      </Box>
-      <Drawer anchor="right" open={h.drawer} onClose={() => h.setDrawer(false)} PaperProps={{ sx: S.drawer }}>
-        <Logo size={36} />
-        <List sx={S.drawerList}>
-          {NAV_LINKS.map(([l, to]) => (
-            <ListItemButton key={to} component={RouterLink} to={to} selected={h.active(to)}>
-              <ListItemText primary={l} primaryTypographyProps={S.drawerText} />
-            </ListItemButton>
+        </nav>
+        <div className="hdr-actions">
+          <button type="button" className="icon-btn theme-btn" onClick={toggleTheme} aria-label="Switch light or dark theme">
+            <Icon name="sun" size={19} className="ico sun" />
+            <Icon name="moon" size={19} className="ico moon" />
+          </button>
+          <a className="hdr-link hide-sm" href={loginUrl()} rel="noopener">
+            Log in
+          </a>
+          <a className="btn btn-gold btn-sm hide-xs" href={registerUrl('header')} rel="noopener">
+            Start free
+          </a>
+          <button type="button" className="icon-btn menu-btn" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-controls="mnav" aria-label="Menu">
+            <Icon name={open ? 'x' : 'menu'} size={22} />
+          </button>
+        </div>
+      </div>
+      <div id="mnav" className={'mnav' + (open ? ' is-open' : '')} hidden={!open} style={menuTop ? { top: menuTop } : undefined}>
+        <nav className="wrap mnav-in" aria-label="Mobile">
+          {[['Home', '/'] as [string, string], ...NAV_LINKS].map(([label, to]) => (
+            <Link key={to} to={to} className="mnav-link">
+              {label}
+              <Icon name="chevronRight" size={18} />
+            </Link>
           ))}
-          <ListItemButton component="a" href={loginUrl()} rel="noopener">
-            <ListItemText primary="Log in" primaryTypographyProps={S.drawerText} />
-          </ListItemButton>
-          <ListItemButton onClick={h.toggleMode}>
-            <ListItemText primary={h.mode === 'dark' ? 'Light theme' : 'Dark theme'} primaryTypographyProps={S.drawerText} />
-          </ListItemButton>
-        </List>
-        <Button variant="contained" size="large" component="a" href={h.registerHref} rel="noopener">
-          Start learning free
-        </Button>
-      </Drawer>
-    </Box>
+          <p className="mnav-kick">Tracks</p>
+          <div className="mnav-tracks">
+            {TRACKS.map((t) => (
+              <Link key={t.id} to={'/courses?track=' + t.id} className="mnav-track" style={{ ['--c' as string]: t.color }}>
+                <Icon name={t.icon} size={16} />
+                {t.name}
+              </Link>
+            ))}
+          </div>
+          <div className="mnav-cta">
+            <a className="btn btn-gold btn-lg" href={registerUrl('mobile_menu')} rel="noopener">
+              Create my free account
+            </a>
+            <a className="btn btn-ghost btn-lg" href={loginUrl()} rel="noopener">
+              Log in to the academy
+            </a>
+          </div>
+        </nav>
+      </div>
+    </header>
   );
 }
 
-function StickyCta() {
-  const s = useStickyCta();
-  if (s.hidden) return null;
+function LanguagePicker() {
+  const mounted = useMounted();
+  const [lang, setLang] = useState<Lang>('en');
+  useEffect(() => {
+    const l = savedLanguage();
+    setLang(l);
+    if (l !== 'en') applySiteLanguage(l);
+  }, []);
   return (
-    <Box sx={S.sticky} data-testid="sticky-cta">
-      <Button variant="contained" size="large" component="a" href={s.href} rel="noopener" sx={S.stickyMain}>
-        {s.label}
-      </Button>
-      <Button variant="outlined" component={RouterLink} to="/ai-course-finder" sx={S.stickyAlt}>
-        Find my course
-      </Button>
-    </Box>
+    <label className="lang notranslate">
+      <Icon name="globe" size={16} />
+      <span className="sr-only">Site language</span>
+      <select
+        value={lang}
+        disabled={!mounted}
+        onChange={(e) => {
+          const l = e.target.value as Lang;
+          setLang(l);
+          applySiteLanguage(l);
+        }}
+      >
+        {LANGS.map(([code, name]) => (
+          <option key={code} value={code}>
+            {name}
+          </option>
+        ))}
+      </select>
+      <Icon name="chevronDown" size={14} />
+    </label>
   );
 }
 
-const skipLink = {
-  position: 'fixed', top: 8, left: 8, zIndex: 2000, px: 2, py: 1, borderRadius: '10px', bgcolor: 'primary.main', color: 'primary.contrastText', fontWeight: 700,
-  transform: 'translateY(-200%)', '&:focus': { transform: 'none' },
-} as const;
+function Footer() {
+  return (
+    <footer className="ftr">
+      <div className="wrap">
+        <div className="ftr-news">
+          <div>
+            <h2 className="ftr-news-title">{FREE_ROADMAP.title}</h2>
+            <p className="muted">{FREE_ROADMAP.sub}</p>
+          </div>
+          <LeadForm source="roadmap" fields={['email']} required={['email']} cta="Email me the roadmap" done="Done! Check your inbox for the roadmap." inline testId="roadmap-form" />
+        </div>
+        <div className="ftr-grid">
+          <div className="ftr-brand">
+            <Logo />
+            <p className="muted">Master the AI frameworks. Own the AI future. Practical AI courses with hands-on projects and a certificate for every learner.</p>
+            <div className="ftr-social">
+              {SOCIAL_LINKS.map(([label, url]) => (
+                <a key={label} href={url} target="_blank" rel="noopener noreferrer" aria-label={label} className="icon-btn">
+                  <Icon name={label === 'X' ? 'x' : label.toLowerCase()} filled size={18} />
+                </a>
+              ))}
+            </div>
+          </div>
+          <div>
+            <h3 className="ftr-h">Tracks</h3>
+            <ul className="ftr-list">
+              {TRACKS.map((t) => (
+                <li key={t.id}>
+                  <Link to={'/courses?track=' + t.id}>{t.name}</Link>
+                </li>
+              ))}
+              <li>
+                <Link to="/courses">All {COURSES.length} courses</Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="ftr-h">Takxila</h3>
+            <ul className="ftr-list">
+              <li>
+                <Link to="/ai-course-finder">AI score quiz</Link>
+              </li>
+              <li>
+                <Link to="/about">About us</Link>
+              </li>
+              <li>
+                <Link to="/contact">Contact</Link>
+              </li>
+              <li>
+                <a href={allCoursesUrl()} rel="noopener">
+                  Academy course catalogue
+                </a>
+              </li>
+              <li>
+                <a href={mainUrl('/local/helpdesk/', 'footer')} rel="noopener">
+                  Help desk
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="ftr-h">Policies</h3>
+            <ul className="ftr-list">
+              {POLICY_LINKS.map(([label, path]) => (
+                <li key={path}>
+                  <a href={mainUrl(path, 'footer_policy')} rel="noopener">
+                    {label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h3 className="ftr-h">Talk to us</h3>
+            <ul className="ftr-list ftr-contact">
+              <li>
+                <a href={MAILTO_HREF}>
+                  <Icon name="mail" size={16} /> {SITE.supportEmail}
+                </a>
+              </li>
+              <li>
+                <a href={TEL_HREF}>
+                  <Icon name="phone" size={16} /> {SITE.phoneDisplay}
+                </a>
+              </li>
+              <li>
+                <a href={whatsappLink('Hi Takxila, I have a question about your AI courses.')} target="_blank" rel="noopener noreferrer">
+                  <Icon name="whatsapp" size={16} /> WhatsApp us
+                </a>
+              </li>
+            </ul>
+            <LanguagePicker />
+          </div>
+        </div>
+        <div className="ftr-base">
+          <span>© {new Date().getFullYear()} TAKXILA™ AI Academy. All rights reserved.</span>
+          <span className="muted">Enrolment, payment and learning happen on academy.takxila.in.</span>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+function WhatsAppFab() {
+  return (
+    <a
+      className="fab"
+      href={whatsappLink('Hi Takxila, I want help choosing an AI course.')}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Chat with us on WhatsApp"
+    >
+      <Icon name="whatsapp" size={28} />
+    </a>
+  );
+}
 
 export default function Layout() {
-  useLayoutEffects();
   const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
   return (
-    <PreviewProvider>
-      <Box sx={S.shell}>
-        <Box component="a" href="#main" sx={skipLink}>
-          Skip to main content
-        </Box>
-        <Background />
-        <OfferBar />
-        <Header />
-        <Box component="main" id="main" tabIndex={-1} sx={S.main}>
-          <ErrorBoundary resetKey={pathname}>
-          <Suspense
-            fallback={
-              <Box sx={S.loader} role="status" aria-label="Loading">
-                <CircularProgress color="secondary" />
-              </Box>
-            }
-          >
-            <Outlet />
-          </Suspense>
-          </ErrorBoundary>
-        </Box>
-        <Footer />
-        <IconButton
-          component="a"
-          href={whatsappLink('Hi Takxila, I would like to know more about your AI courses.')}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Chat with us on WhatsApp"
-          sx={S.whatsapp}
-          data-testid="whatsapp"
-        >
-          <WhatsAppIcon />
-        </IconButton>
-        <StickyCta />
-      </Box>
-    </PreviewProvider>
+    <>
+      <a href="#main" className="skip">
+        Skip to main content
+      </a>
+      <OfferBar />
+      <Header />
+      <main id="main">
+        <Outlet />
+      </main>
+      <Footer />
+      <WhatsAppFab />
+    </>
   );
 }

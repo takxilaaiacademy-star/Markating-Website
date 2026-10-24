@@ -31,11 +31,10 @@ export function currentUtm(): Utm {
   return DEFAULT_UTM;
 }
 
-/** Adds the visit's UTM tags to an outbound link, keeping its own query and #hash. */
-export function withUtm(href: string, content?: string): string {
+/** Adds UTM tags to an outbound link, keeping its own query and #hash. Pages render with the default tags (so the prerendered HTML is the same for everyone); retagOutboundLinks swaps in the visitor's own tags on click. */
+export function withUtm(href: string, content?: string, utm: Utm = DEFAULT_UTM): string {
   try {
     const url = new URL(href, MAIN_SITE_URL);
-    const utm = currentUtm();
     KEYS.forEach((k) => {
       const v = utm[k];
       if (v && !url.searchParams.has(k)) url.searchParams.set(k, v);
@@ -53,6 +52,27 @@ export const loginUrl = () => mainUrl(MAIN_PATHS.login, 'login');
 export const allCoursesUrl = () => mainUrl(MAIN_PATHS.courses, 'all_courses');
 export const enrollUrl = (c: Course, content = 'enroll') =>
   withUtm(USE_ACADEMY_LINKS && c.academyUrl ? c.academyUrl : MAIN_SITE_URL + MAIN_PATHS.course(c.id), content + '_' + c.id);
+
+/** Runs once on load: when the visitor came from an ad or post, each academy link gets that visit's UTM tags at the moment it is clicked. */
+export function retagOutboundLinks() {
+  const host = new URL(MAIN_SITE_URL).host;
+  const retag = (e: Event) => {
+    const a = (e.target as Element | null)?.closest?.('a[href]') as HTMLAnchorElement | null;
+    if (!a || a.host !== host) return;
+    const utm = currentUtm();
+    if (utm === DEFAULT_UTM) return;
+    const url = new URL(a.href);
+    KEYS.forEach((k) => {
+      if (k === 'utm_content') return;
+      url.searchParams.delete(k);
+      const v = utm[k];
+      if (v) url.searchParams.set(k, v);
+    });
+    a.href = url.toString();
+  };
+  document.addEventListener('click', retag, true);
+  document.addEventListener('auxclick', retag, true);
+}
 
 /** Props for a button or link that leaves for the main site in the same tab. */
 export const outbound = (href: string) => ({ component: 'a' as const, href, rel: 'noopener' });

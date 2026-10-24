@@ -29,6 +29,7 @@ export const CALC_SCORES: Record<string, [number, number]> = {
   'kling-master': [7, 10],
   'claude-code': [8, 10],
 
+  'ats-resume': [1, 6],
   portfolio: [1, 4],
   'gads-setup': [1, 4],
   'nocode-web': [2, 5],
