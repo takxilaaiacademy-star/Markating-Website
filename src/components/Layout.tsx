@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { FREE_ROADMAP, OFFER, POLICY_LINKS, SOCIAL_LINKS } from '../config/marketing';
 import { MAILTO_HREF, SITE, TEL_HREF, whatsappLink } from '../config/site';
@@ -7,7 +7,9 @@ import { LANGS } from '../data/languages';
 import { TRACKS } from '../data/tracks';
 import { COURSES } from '../data/courses';
 import { allCoursesUrl, loginUrl, mainUrl, registerUrl } from '../utils/links';
+import { track } from '../utils/analytics';
 import { applySiteLanguage, savedLanguage } from '../utils/siteTranslate';
+import { load, save } from '../utils/storage';
 import Icon from './Icon';
 import LeadForm from './LeadForm';
 import { NAV_LINKS, useMounted } from './types';
@@ -267,17 +269,70 @@ function Footer() {
   );
 }
 
-function WhatsAppFab() {
+const FAB_TEXT = 'Hi Takxila, I want help choosing an AI course.';
+
+const loadChat = () => import('../features/chat/ChatPanel');
+const ChatPanel = lazy(loadChat);
+
+/** The WhatsApp button opens Tx, the AI bot. Before the page is interactive it is still a plain WhatsApp link. */
+function ChatLauncher() {
+  const [open, setOpen] = useState(false);
+  const [tease, setTease] = useState(false);
+  const fab = useRef<HTMLAnchorElement>(null);
+  useEffect(() => {
+    if (load('chat_seen', false, sessionStorage)) return;
+    const t = window.setTimeout(() => setTease(true), 9000);
+    return () => window.clearTimeout(t);
+  }, []);
+  const seen = () => {
+    setTease(false);
+    save('chat_seen', true, sessionStorage);
+  };
+  const close = useCallback(() => {
+    setOpen(false);
+    fab.current?.focus();
+  }, []);
   return (
-    <a
-      className="fab"
-      href={whatsappLink('Hi Takxila, I want help choosing an AI course.')}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label="Chat with us on WhatsApp"
-    >
-      <Icon name="whatsapp" size={28} />
-    </a>
+    <>
+      {tease && !open && (
+        <div className="txc-tease" role="status">
+          <button type="button" className="txc-tease-go" onClick={() => (seen(), setOpen(true))}>
+            <b>Need help picking a course? 👋</b>
+            Ask Tx, our AI buddy. Replies in seconds.
+          </button>
+          <button type="button" className="txc-tease-x" onClick={seen} aria-label="Hide this message">
+            <Icon name="x" size={15} />
+          </button>
+        </div>
+      )}
+      {open && (
+        <Suspense fallback={null}>
+          <ChatPanel onClose={close} />
+        </Suspense>
+      )}
+      <a
+        ref={fab}
+        className={'fab txc-fab' + (open ? ' is-open' : '')}
+        href={whatsappLink(FAB_TEXT)}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={open ? 'Close the chat' : 'Chat with Tx, our AI assistant'}
+        aria-expanded={open}
+        onPointerEnter={loadChat}
+        onFocus={loadChat}
+        onClick={(e) => {
+          e.preventDefault();
+          if (!open) track('chat_open', {});
+          seen();
+          setOpen((o) => !o);
+        }}
+      >
+        <Icon name={open ? 'x' : 'whatsapp'} size={open ? 24 : 28} />
+        <span className="txc-fab-ai" aria-hidden="true">
+          AI
+        </span>
+      </a>
+    </>
   );
 }
 
@@ -297,7 +352,7 @@ export default function Layout() {
         <Outlet />
       </main>
       <Footer />
-      <WhatsAppFab />
+      <ChatLauncher />
     </>
   );
 }

@@ -6,6 +6,11 @@ export const MAIN_SITE_URL = (import.meta.env.VITE_MAIN_SITE_URL || "https://aca
 /** Where this marketing site is hosted: used for canonical links, Open Graph tags and sitemap.xml. */
 export const SITE_URL = (import.meta.env.VITE_SITE_URL || "https://takxila.in").replace(/\/$/, "");
 
+/** Address of your deployed Tx AI bot (the takxila-ai-bot project), e.g. "https://takxila-ai-bot.onrender.com".
+ *  Paste it here, or set VITE_CHAT_API_URL in .env / Vercel (that one wins). The WhatsApp button always opens the chat. */
+const CHAT_API_ADDRESS = "";
+export const CHAT_API_URL = (import.meta.env.VITE_CHAT_API_URL || CHAT_API_ADDRESS).trim().replace(/\/$/, "");
+
 /** Paths on the main site. */
 export const MAIN_PATHS = {
   register: "/login/signup.php",

@@ -411,6 +411,114 @@
   }
 }
 
+/* Tx AI launcher: the WhatsApp button bottom right opens the chat (panel styles load with it, in chat.css) */
+.fab.txc-fab {
+  border: 0;
+  z-index: 46;
+}
+.txc-fab .txc-fab-ai {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  padding: 3px 6px;
+  border-radius: 8px;
+  font: 800 10px/1 var(--body);
+  letter-spacing: 0.08em;
+  color: var(--gold-ink);
+  background: linear-gradient(100deg, var(--gold), var(--gold-2));
+  box-shadow: 0 4px 10px -3px rgba(0, 0, 0, 0.45);
+}
+.txc-fab.is-open {
+  background: var(--surface-solid);
+  color: var(--text);
+  border: 1px solid var(--line-2);
+  box-shadow: var(--shadow-md);
+}
+.txc-fab.is-open .txc-fab-ai {
+  display: none;
+}
+.txc-fab::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid #25d366;
+  opacity: 0;
+  animation: txc-ping 2.8s ease-out 2s 3;
+  pointer-events: none;
+}
+.txc-fab.is-open::after {
+  display: none;
+}
+@keyframes txc-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  70%,
+  100% {
+    transform: scale(1.55);
+    opacity: 0;
+  }
+}
+.txc-tease {
+  position: fixed;
+  right: 20px;
+  bottom: 90px;
+  z-index: 44;
+  max-width: 250px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 12px 12px 14px;
+  border-radius: 16px 16px 6px 16px;
+  background: var(--surface-solid);
+  border: 1px solid var(--line-2);
+  box-shadow: var(--shadow-md);
+  font-size: 14px;
+  line-height: 1.45;
+  text-align: left;
+  animation: txc-pop 0.3s ease-out;
+}
+@keyframes txc-pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+.txc-tease b {
+  display: block;
+  font-family: var(--display);
+}
+.txc-tease-go {
+  text-align: left;
+}
+.txc-tease-x {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  margin: -4px -4px 0 0;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+}
+.txc-tease-x:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+@media (max-width: 720px) {
+  .txc-tease {
+    right: 14px;
+    bottom: 76px;
+  }
+  .course ~ .txc-tease,
+  body:has(.buybar) .txc-tease {
+    bottom: 148px;
+  }
+}
+
 /* Toast */
 .toast-host {
   position: fixed;
