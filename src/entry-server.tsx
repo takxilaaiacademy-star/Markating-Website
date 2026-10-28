@@ -6,6 +6,7 @@ import { AppProvider } from './context/AppProvider';
 import { HeadContext, type HeadCollector } from './context/types';
 import { CONTENT } from './data/courseContent';
 import { COURSES } from './data/courses';
+import { FREE_TOOLS } from './data/tools';
 import { primeContent } from './utils/content';
 import { abs, fullTitle } from './utils/seo';
 
@@ -13,7 +14,7 @@ Object.entries(CONTENT).forEach(([id, c]) => primeContent(id, c));
 COURSES.forEach((c) => !CONTENT[c.id] && primeContent(c.id, null));
 
 /** Every page the prerender step writes to dist/. */
-export const routes = ['/', '/courses', '/ai-course-finder', '/about', '/contact', '/policies', '/404', ...COURSES.map((c) => '/course/' + c.id)];
+export const routes = ['/', '/courses', '/ai-course-finder', '/about', '/contact', '/policies', '/404', '/free-tools', ...FREE_TOOLS.map((t) => '/free-tools/' + t.id), ...COURSES.map((c) => '/course/' + c.id)];
 
 export { CONTENT };
 

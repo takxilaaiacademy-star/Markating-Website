@@ -13,6 +13,9 @@
  *     then restart "npm run dev" (or rebuild). Admin > Emails shows "Google Apps Script" as the sender.
  *  5. Changed this script later? Deploy > Manage deployments > pencil > Version: New version > Deploy (the link stays the same).
  *
+ * The contact form sends two emails per message: the enquiry to the academy inbox and a branded
+ * "we got your message" confirmation to the visitor. Both use this one web app.
+ *
  * Limits: a normal Gmail account can send to about 100 people a day (Google Workspace: 1,500).
  * The web app URL ends up in the website's code, so anyone could call it: the limits below stop it being abused.
  */
@@ -46,7 +49,8 @@ function doPost(e) {
       htmlBody: String(d.html),
       body: String(d.text || ''),
       name: FROM_NAME,
-      replyTo: REPLY_TO,
+      // The website sends the visitor's address with enquiries, so "Reply" in Gmail answers them directly.
+      replyTo: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(d.replyTo || '')) ? String(d.replyTo) : REPLY_TO,
     });
     return reply('ok');
   } catch (err) {

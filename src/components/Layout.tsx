@@ -11,6 +11,7 @@ import { track } from '../utils/analytics';
 import { applySiteLanguage, savedLanguage } from '../utils/siteTranslate';
 import { load, save } from '../utils/storage';
 import Icon from './Icon';
+import TxBot from './TxBot';
 import LeadForm from './LeadForm';
 import { NAV_LINKS, useMounted } from './types';
 import type { Lang } from '../types';
@@ -274,14 +275,14 @@ const FAB_TEXT = 'Hi Takxila, I want help choosing an AI course.';
 const loadChat = () => import('../features/chat/ChatPanel');
 const ChatPanel = lazy(loadChat);
 
-/** The WhatsApp button opens Tx, the AI bot. Before the page is interactive it is still a plain WhatsApp link. */
+/** The animated AI bot button opens Tx, the AI chat. Before the page is interactive it is still a plain WhatsApp link. */
 function ChatLauncher() {
   const [open, setOpen] = useState(false);
   const [tease, setTease] = useState(false);
   const fab = useRef<HTMLAnchorElement>(null);
   useEffect(() => {
     if (load('chat_seen', false, sessionStorage)) return;
-    const t = window.setTimeout(() => setTease(true), 9000);
+    const t = window.setTimeout(() => setTease(true), 7000);
     return () => window.clearTimeout(t);
   }, []);
   const seen = () => {
@@ -297,8 +298,8 @@ function ChatLauncher() {
       {tease && !open && (
         <div className="txc-tease" role="status">
           <button type="button" className="txc-tease-go" onClick={() => (seen(), setOpen(true))}>
-            <b>Need help picking a course? 👋</b>
-            Ask Tx, our AI buddy. Replies in seconds.
+            <b>yo 👋 stuck choosing a course?</b>
+            Ask Tx, our AI buddy. No cap, replies in seconds ✨
           </button>
           <button type="button" className="txc-tease-x" onClick={seen} aria-label="Hide this message">
             <Icon name="x" size={15} />
@@ -312,7 +313,7 @@ function ChatLauncher() {
       )}
       <a
         ref={fab}
-        className={'fab txc-fab' + (open ? ' is-open' : '')}
+        className={'fab txc-fab txb' + (open ? ' is-open' : '')}
         href={whatsappLink(FAB_TEXT)}
         target="_blank"
         rel="noopener noreferrer"
@@ -327,10 +328,16 @@ function ChatLauncher() {
           setOpen((o) => !o);
         }}
       >
-        <Icon name={open ? 'x' : 'whatsapp'} size={open ? 24 : 28} />
+        <span className="txb-ring" aria-hidden="true" />
+        <span className="txb-face">{open ? <Icon name="x" size={24} /> : <TxBot size={40} />}</span>
         <span className="txc-fab-ai" aria-hidden="true">
           AI
         </span>
+        {!open && (
+          <span className="txb-wave" aria-hidden="true">
+            👋
+          </span>
+        )}
       </a>
     </>
   );
@@ -338,8 +345,11 @@ function ChatLauncher() {
 
 export default function Layout() {
   const { pathname } = useLocation();
+  const [navs, setNavs] = useState(0);
+  const first = useRef(pathname);
   useEffect(() => {
     window.scrollTo(0, 0);
+    if (pathname !== first.current) setNavs((n) => n + 1);
   }, [pathname]);
   return (
     <>
@@ -349,7 +359,9 @@ export default function Layout() {
       <OfferBar />
       <Header />
       <main id="main">
-        <Outlet />
+        <div key={pathname} className={'fx-page' + (navs ? ' is-nav' : '')}>
+          <Outlet />
+        </div>
       </main>
       <Footer />
       <ChatLauncher />

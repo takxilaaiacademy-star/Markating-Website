@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Icon from '../components/Icon';
 import LeadForm from '../components/LeadForm';
@@ -10,6 +11,8 @@ import { FREE_COURSES, TOOLS } from '../data/tracks';
 import { allCoursesUrl, mainUrl } from '../utils/links';
 import { usePageMeta } from '../utils/seo';
 import { totalHours } from './types';
+
+const TOPICS = ['Which course to pick', 'Payment or access', 'Free AI tools', 'Training for my team', 'Something else'];
 
 const PILLARS: [icon: string, title: string, text: string][] = [
   ['layers', 'Frameworks, not buttons', 'Learn how to think, prompt, structure and automate, so your skills move with every new AI tool.'],
@@ -100,6 +103,7 @@ export function About() {
 }
 
 export function Contact() {
+  const [topic, setTopic] = useState(TOPICS[0]);
   usePageMeta({
     title: 'Contact us',
     description: 'Questions about a course, a payment or which AI course to pick? Write to Takxila AI Academy by email, phone or WhatsApp.',
@@ -130,14 +134,33 @@ export function Contact() {
               </a>
             ))}
           </div>
-          <div className="contact-form">
+          <div className="contact-form fx-glow">
             <h2>Send us a message</h2>
+            <p className="muted contact-note">
+              <Icon name="mail" size={15} /> You get an instant email copy, and a real person replies within one working day.
+            </p>
+            <div className="contact-topics" role="radiogroup" aria-label="What is it about?">
+              {TOPICS.map((t) => (
+                <button key={t} type="button" role="radio" aria-checked={topic === t} className={'chip' + (topic === t ? ' is-on' : '')} onClick={() => setTopic(t)}>
+                  {t}
+                </button>
+              ))}
+            </div>
             <LeadForm
               source="contact"
               fields={['name', 'email', 'phone', 'message']}
               required={['name', 'email', 'message']}
               cta="Send message"
-              done="Message sent. We will reply to you by email soon."
+              extra={() => ({ Topic: topic })}
+              done={
+                <span className="contact-done">
+                  <span className="contact-plane" aria-hidden="true">
+                    ✉️
+                  </span>
+                  <b>Message sent! 🚀</b>
+                  <small>We have emailed a copy to your inbox (check Promotions or Spam if you do not see it). Expect our reply within one working day.</small>
+                </span>
+              }
               testId="contact-form"
             />
           </div>

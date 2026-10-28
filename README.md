@@ -53,6 +53,18 @@
 
 ---
 
+## 🆕 What's New in v2.0 (Gen-Z edition)
+
+- 🧰 **Free AI career tools** at `/free-tools`, powered by Google Gemini:
+  - **ATS-Friendly Resume Builder** (`/free-tools/ats-resume-builder`): paste a job post, get a one-page resume, a live ATS score (target 85+), 5 themes and a PDF download.
+  - **Aptitude Practice** (`/free-tools/aptitude-test`): quant, reasoning and verbal tests with a timer, worked solutions and weak-topic retry.
+  - **Interview Preparation** (`/free-tools/interview-prep`): a voice or text mock interview with "Priya" that scores every answer, plus likely questions with sample answers.
+  - Every tool keeps working without a key (offline question banks and rule-based scoring), so no screen is ever blank.
+- ✨ **Aceternity-style motion on every screen** (built in plain CSS, no Tailwind): spotlight, background beams, meteors, sparkles, text generate, flip words, lamp, moving borders, infinite cards, number tickers, card glow, 3D tilt, scroll progress and page transitions. All of it switches off for visitors who ask for reduced motion.
+- 📧 **Contact form email with branded templates**: every message reaches the academy inbox as a polished HTML email (one-tap "Reply" and "WhatsApp them"), and the visitor instantly gets a beautiful "We got your message" confirmation with links to free courses and tools. Templates live in `src/utils/emails.ts`; sending goes through the Google Apps Script in `tools/Code.gs` (FormSubmit as backup). After updating `tools/Code.gs`, redeploy it as a new version.
+- 🗣️ **Priya speaks**: in the mock interview she reads every question aloud, her face animates while she talks, and you can mute her or replay a question. Answer by typing or with the mic.
+- 🤖 **Animated AI bot button**: the bottom-right WhatsApp icon is now a Gen-Z robot that blinks, waves, follows the cursor and opens the Tx chatbot. WhatsApp is still one tap away inside the chat.
+
 ## 🔥 What's New in v2
 
 - 🏎️ **Rebuilt for Raw Speed:** Fully stripped Material-UI (MUI); implemented a lightweight, high-performance design system with native Vanilla CSS. JavaScript payload reduced from **1 MB to ~330 KB** (~110 KB gzipped).
@@ -193,6 +205,21 @@ VITE_MAIL_WEBHOOK=https://script.google.com/macros/s/.../exec
 VITE_GA_ID=G-XXXXXXXXXX
 VITE_META_PIXEL_ID=123456789012345
 ```
+
+### Gemini AI for the free tools (server-side only)
+
+The free tools call `/api/ai` (`api/ai.js` on Vercel, and the Vite dev and preview servers). The key is read on the server and never reaches the browser.
+
+```ini
+GEMINI_API_KEY=AIza...            # from https://aistudio.google.com/apikey (it must start with "AIza")
+GEMINI_MODEL=gemini-3.5-flash     # optional
+GEMINI_FALLBACK_MODELS=gemini-3.5-flash-lite,gemini-2.5-flash   # optional, tried when the first model is busy
+AI_REQUESTS_PER_HOUR=40           # optional, per visitor
+AI_ALLOWED_ORIGINS=https://takxila.in,https://www.takxila.in   # optional, extra sites allowed to call the API
+VITE_AI_API_URL=                  # optional, only when the API is hosted somewhere else
+```
+
+On Vercel, add `GEMINI_API_KEY` under **Project → Settings → Environment Variables** and redeploy. On static hosts (Netlify without functions, Hostinger), the tools run in offline mode.
 
 ### 2. Marketing & Brand Settings
 

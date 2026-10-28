@@ -6,6 +6,7 @@ import { AppProvider } from './context/AppProvider';
 import { initAnalytics } from './utils/analytics';
 import { primeContent } from './utils/content';
 import { captureUtm, retagOutboundLinks } from './utils/links';
+import { initFx } from './utils/fx';
 import { guardDomForTranslation } from './utils/siteTranslate';
 import type { CourseContent } from './data/courseContent';
 import './styles/base.css';
@@ -13,6 +14,8 @@ import './styles/layout.css';
 import './styles/components.css';
 import './styles/home.css';
 import './styles/pages.css';
+import './styles/fx.css';
+import './styles/tools.css';
 
 guardDomForTranslation();
 captureUtm();
@@ -45,3 +48,7 @@ const prerendered = root.dataset.path === location.pathname.replace(/\/$/, '') |
 const filtered = /[?&](track|price|q|sort)=/.test(location.search);
 if (root.firstElementChild && prerendered && !filtered) hydrateRoot(root, app);
 else createRoot(root).render(app);
+// Motion starts once the page is interactive.
+const startFx = () => initFx();
+if ('requestIdleCallback' in window) requestIdleCallback(startFx, { timeout: 1200 });
+else setTimeout(startFx, 300);

@@ -13,6 +13,10 @@ const pages = [
   ['/', '1.0', 'weekly'],
   ['/courses', '0.9', 'weekly'],
   ['/ai-course-finder', '0.8', 'monthly'],
+  ['/free-tools', '0.9', 'weekly'],
+  ['/free-tools/ats-resume-builder', '0.9', 'monthly'],
+  ['/free-tools/aptitude-test', '0.9', 'monthly'],
+  ['/free-tools/interview-prep', '0.9', 'monthly'],
   ['/about', '0.5', 'yearly'],
   ['/contact', '0.5', 'yearly'],
   ['/policies', '0.2', 'yearly'],
@@ -25,5 +29,5 @@ ${pages.map(([p, pr, f]) => `  <url><loc>${site}${p}</loc><lastmod>${today}</las
 </urlset>
 `;
 writeFileSync(resolve(root, 'dist/sitemap.xml'), xml);
-writeFileSync(resolve(root, 'dist/robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${site}/sitemap.xml\n`);
+writeFileSync(resolve(root, 'dist/robots.txt'), `User-agent: *\nAllow: /\nDisallow: /api/\n\nSitemap: ${site}/sitemap.xml\n`);
 console.log(`sitemap.xml: ${pages.length} URLs on ${site} · robots.txt written`);

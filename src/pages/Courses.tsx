@@ -8,6 +8,7 @@ import { COURSES } from '../data/courses';
 import { FREE_COURSES, LOWEST_PRICE, TRACKS, coursesIn } from '../data/tracks';
 import { mainUrl } from '../utils/links';
 import { courseListLd, usePageMeta } from '../utils/seo';
+import { ToolsStrip } from './Tools';
 import { SORTS, useCourseFilters, type SortKey } from './types';
 
 export default function Courses() {
@@ -77,6 +78,11 @@ export default function Courses() {
               <Icon name="gift" size={15} /> Free only
             </button>
           </div>
+          {(f.free || f.track === 'career') && (
+            <div className="courses-tools">
+              <ToolsStrip title="Free tools for your job hunt," sub="Free courses teach you the skills. These free AI tools help you land the job: resume, aptitude and interview." />
+            </div>
+          )}
           <p className="result-line" aria-live="polite">
             {f.list.length} {f.list.length === 1 ? 'course' : 'courses'}
             {filtered && (

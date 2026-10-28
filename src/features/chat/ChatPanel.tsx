@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Icon from '../../components/Icon';
+import TxBot from '../../components/TxBot';
 import { fmt } from '../../components/types';
 import { SITE_URL } from '../../config/marketing';
 import { whatsappLink } from '../../config/site';
@@ -206,7 +207,7 @@ export default function ChatPanel({ onClose }: { onClose: () => void }) {
     <section className="txc" role="dialog" aria-label="Chat with Tx, the Takxila AI assistant" aria-modal="false">
       <header className="txc-hd">
         <span className="txc-av" aria-hidden="true">
-          <img src="/assets/logo-mark.webp" width="24" height="26" alt="" />
+          <TxBot size={30} />
         </span>
         <span className="txc-who">
           <b className="notranslate">

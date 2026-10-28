@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import CourseCard from '../components/CourseCard';
 import Icon from '../components/Icon';
+import { Beams, FlipWords, InfiniteCards, Lamp, Meteors, Sparkles, Spotlight, Ticker } from '../components/Fx';
 import { LazyLoop } from '../components/Media';
 import { Faq, SectionHead } from '../components/Section';
 import { cardTitle, fmt } from '../components/types';
@@ -13,6 +14,7 @@ import { COMPARE_COLS, COMPARE_PRICE, COMPARE_ROWS } from '../data/showcase';
 import { BESTSELLERS, FREE_COURSES, LOWEST_PRICE, TOOLS, TRACKS, coursesIn, fromPrice } from '../data/tracks';
 import { enrollUrl, registerUrl } from '../utils/links';
 import { faqLd, usePageMeta } from '../utils/seo';
+import { ToolsStrip } from './Tools';
 import { PERSONAS, STEPS, totalHours } from './types';
 import type { GroupId } from '../types';
 
@@ -27,23 +29,41 @@ function Hero() {
         <div className="blob b1" />
         <div className="blob b2" />
         <div className="blob b3" />
+        <Beams />
+        <Spotlight className="is-left" />
+        <Spotlight className="is-right" fill="#9b7bff" />
+        <Sparkles count={60} seed={11} />
       </div>
       <div className="wrap hero-in">
         <div className="hero-copy">
-          <Link to="/courses" className="hero-chip">
-            <span className="hero-chip-dot" />
-            {COURSES.length} AI courses · 5 tracks · {FREE_COURSES.length} free
-            <Icon name="arrowRight" size={14} />
-          </Link>
+          <div className="hero-chips">
+            <Link to="/courses" className="hero-chip">
+              <span className="hero-chip-dot" />
+              {COURSES.length} AI courses · 5 tracks · {FREE_COURSES.length} free
+              <Icon name="arrowRight" size={14} />
+            </Link>
+            <Link to="/free-tools" className="hero-chip is-new mb-border" data-testid="hero-tools-chip">
+              <span className="mb-inner">
+                <b>NEW</b> Free AI resume, aptitude & interview tools <Icon name="arrowRight" size={14} />
+              </span>
+            </Link>
+          </div>
           <h1 className="hero-title">
-            <span>Master AI.</span> <span className="grad">Transform your career.</span> <span>Grow your business.</span>
+            <span className="fx-line" style={{ animationDelay: '.05s' }}>Master AI.</span>{' '}
+            <span className="fx-line grad" style={{ animationDelay: '.2s' }}>
+              Transform your career.
+            </span>{' '}
+            <span className="fx-line" style={{ animationDelay: '.35s' }}>Grow your business.</span>
           </h1>
+          <p className="hero-flip">
+            Made for <FlipWords words={['students', 'job seekers', 'creators', 'founders', 'marketers', 'developers']} className="grad" />
+          </p>
           <p className="hero-sub">
             Practical, framework-first AI courses taught step by step: AI agents, Claude, ChatGPT, Gemini, Midjourney, AI video and filmmaking, marketing and careers. Learn
             by doing, finish real projects and earn a certificate.
           </p>
           <div className="hero-ctas">
-            <Link to="/courses" className="btn btn-gold btn-lg">
+            <Link to="/courses" className="btn btn-gold btn-lg shine">
               Explore all courses <Icon name="arrowRight" size={18} className="ico ico-move" />
             </Link>
             <Link to="/ai-course-finder" className="btn btn-ghost btn-lg">
@@ -101,19 +121,27 @@ function Hero() {
         <dl className="stats">
           <div>
             <dt>Courses</dt>
-            <dd>{COURSES.length}</dd>
+            <dd>
+              <Ticker value={COURSES.length} />
+            </dd>
           </div>
           <div>
             <dt>Hours of lessons</dt>
-            <dd>{Math.floor(totalHours / 50) * 50}+</dd>
+            <dd>
+              <Ticker value={Math.floor(totalHours / 50) * 50} suffix="+" />
+            </dd>
           </div>
           <div>
             <dt>AI tools covered</dt>
-            <dd>{TOOLS.length}+</dd>
+            <dd>
+              <Ticker value={TOOLS.length} suffix="+" />
+            </dd>
           </div>
           <div>
             <dt>Learners took the AI quiz</dt>
-            <dd>{LEARNERS.toLocaleString('en-IN')}+</dd>
+            <dd>
+              <Ticker value={LEARNERS} suffix="+" />
+            </dd>
           </div>
         </dl>
       </div>
@@ -151,7 +179,7 @@ function Tracks() {
             const cover = courseById(t.cover)!;
             const free = list.filter((c) => !c.price).length;
             return (
-              <Link key={t.id} to={'/courses?track=' + t.id} className={'track t' + i} style={{ ['--c' as string]: t.color }}>
+              <Link key={t.id} to={'/courses?track=' + t.id} className={'track t' + i} style={{ ['--c' as string]: t.color }} data-tilt>
                 <div className="track-top">
                   <span className="track-ico">
                     <Icon name={t.icon} size={22} />
@@ -279,7 +307,7 @@ function Why() {
             </p>
           </div>
           <div className="bx bx-video">
-            <LazyLoop src={vid.video} label="Course summary video preview" />
+            <LazyLoop src={vid.video} poster={vid.img} label="Course summary video preview" />
             <div className="bx-video-cap">
               <span className="bx-ico" style={{ ['--c' as string]: 'var(--gold)' }}>
                 <Icon name="play" size={20} />
@@ -406,6 +434,7 @@ function QuizBand() {
     <section className="sec">
       <div className="wrap">
         <div className="quizband">
+          <Meteors count={16} seed={4} />
           <div className="quizband-art" aria-hidden="true">
             <svg viewBox="0 0 120 120" className="qgauge">
               <circle cx="60" cy="60" r="50" className="qg-track" />
@@ -435,7 +464,7 @@ function Testimonials() {
     <section className="sec" id="stories">
       <div className="wrap">
         <SectionHead center kick="Learner stories" title="What learners say" />
-        <div className="quotes">
+        <InfiniteCards className="quotes-inf" speed={45}>
           {TESTIMONIALS.map((t) => (
             <figure key={t.quote} className="quote">
               <div className="stars" aria-hidden="true">
@@ -457,7 +486,7 @@ function Testimonials() {
               </figcaption>
             </figure>
           ))}
-        </div>
+        </InfiniteCards>
       </div>
     </section>
   );
@@ -470,20 +499,23 @@ function FinalCta() {
       <div className="wrap">
         <div className="final">
           <div className="final-glow" aria-hidden="true" />
-          <h2 className="final-title">
-            The AI future is being built now.
-            <br />
-            <span className="grad">Build yours.</span>
-          </h2>
-          <p className="shead-sub">Your first AI agent course is free and takes 30 minutes. Start today on the Takxila AI Academy.</p>
-          <div className="hero-ctas is-center">
-            <a className="btn btn-gold btn-lg" href={enrollUrl(first, 'final_cta')} rel="noopener">
-              Start the free course <Icon name="arrowRight" size={18} className="ico ico-move" />
-            </a>
-            <Link to="/courses" className="btn btn-ghost btn-lg">
-              Browse courses
-            </Link>
-          </div>
+          <Sparkles count={45} seed={9} />
+          <Lamp>
+            <h2 className="final-title">
+              The AI future is being built now.
+              <br />
+              <span className="grad">Build yours.</span>
+            </h2>
+            <p className="shead-sub">Your first AI agent course is free and takes 30 minutes. Start today on the Takxila AI Academy.</p>
+            <div className="hero-ctas is-center">
+              <a className="btn btn-gold btn-lg shine" href={enrollUrl(first, 'final_cta')} rel="noopener">
+                Start the free course <Icon name="arrowRight" size={18} className="ico ico-move" />
+              </a>
+              <Link to="/courses" className="btn btn-ghost btn-lg">
+                Browse courses
+              </Link>
+            </div>
+          </Lamp>
         </div>
       </div>
     </section>
@@ -504,6 +536,11 @@ export default function Home() {
       <Tracks />
       <Bestsellers />
       <FreeBand />
+      <section className="sec sec-alt" id="free-tools">
+        <div className="wrap">
+          <ToolsStrip />
+        </div>
+      </section>
       <HowItWorks />
       <Why />
       <Personas />

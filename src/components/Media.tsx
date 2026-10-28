@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import Icon from './Icon';
 
 /** Muted looping clip that only downloads once it scrolls into view. */
-export function LazyLoop({ src, label }: { src: string; label: string }) {
+export function LazyLoop({ src, label, poster }: { src: string; label: string; poster?: string }) {
   const ref = useRef<HTMLVideoElement>(null);
   const [on, setOn] = useState(false);
   useEffect(() => {
@@ -12,7 +12,7 @@ export function LazyLoop({ src, label }: { src: string; label: string }) {
     io.observe(el);
     return () => io.disconnect();
   }, []);
-  return <video ref={ref} src={on ? src : undefined} muted loop playsInline autoPlay aria-label={label} />;
+  return <video ref={ref} src={on ? src : undefined} poster={poster} preload="none" muted loop playsInline autoPlay aria-label={label} />;
 }
 
 /** Course cover with a play button; the summary video loads only when the visitor asks for it. */

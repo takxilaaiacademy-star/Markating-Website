@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react';
 import { useToast } from '../context/types';
 import { EMAIL_RE, phoneOk, sendLead } from '../utils/leads';
 import type { Course, LeadSource } from '../types';
@@ -19,6 +19,7 @@ export const reduced = () =>
 export const NAV_LINKS: [label: string, to: string][] = [
   ['Courses', '/courses'],
   ['Free courses', '/courses?price=free'],
+  ['Free AI tools', '/free-tools'],
   ['AI score quiz', '/ai-course-finder'],
   ['About', '/about'],
   ['Contact', '/contact'],
@@ -39,7 +40,7 @@ export interface LeadFormProps {
   fields: LeadField[];
   required?: LeadField[];
   cta: string;
-  done: string;
+  done: ReactNode;
   extra?: () => Record<string, string>;
   onSent?: () => void;
   inline?: boolean;

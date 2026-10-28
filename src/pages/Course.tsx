@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
 import CourseCard, { Price } from '../components/CourseCard';
+import { Beams, Spotlight } from '../components/Fx';
 import Icon from '../components/Icon';
 import { VideoPreview } from '../components/Media';
 import { Faq } from '../components/Section';
@@ -143,6 +144,8 @@ function CourseView({ c }: { c: CourseT }) {
     <div className="course" style={{ ['--c' as string]: t.color }}>
       <section className="chero">
         <div className="phero-glow" aria-hidden="true" />
+        <Beams />
+        <Spotlight className="is-left" />
         <div className="wrap chero-in">
           <div className="chero-copy">
             <nav className="crumbs" aria-label="Breadcrumb">
@@ -192,6 +195,11 @@ function CourseView({ c }: { c: CourseT }) {
               <a className="btn btn-gold btn-lg buy-cta" href={enroll} rel="noopener" data-testid="enroll">
                 {c.price ? 'Enroll now' : 'Start free now'} <Icon name="arrowUpRight" size={18} />
               </a>
+              {c.id === 'ats-resume' && (
+                <Link className="btn btn-ghost buy-tool shine" to="/free-tools/ats-resume-builder" data-testid="open-resume-builder">
+                  <Icon name="sparkles" size={18} /> Open the free AI resume builder
+                </Link>
+              )}
               <a className="btn btn-ghost buy-wa" href={whatsappLink(`Hi Takxila, I have a question about the course: ${c.title}`)} target="_blank" rel="noopener noreferrer">
                 <Icon name="whatsapp" size={18} /> Ask a question on WhatsApp
               </a>
